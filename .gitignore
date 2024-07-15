@@ -21,3 +21,6 @@
 go.work
 go.work.sum
 .env
+
+server/chat_server
+client/chat_client
