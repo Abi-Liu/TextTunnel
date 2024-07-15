@@ -3,8 +3,8 @@ SERVER_BINARY := chat_server
 CLIENT_BINARY := chat_client
 
 # Directories
-SERVER_DIR := ./server
-CLIENT_DIR := ./client
+SERVER_DIR := ./cmd/chat_server/
+CLIENT_DIR := ./cmd/chat_client/
 
 build-server:
 	@echo "Building server..."
