@@ -30,5 +30,5 @@ func main() {
 }
 
 func getHealthCheck(w http.ResponseWriter, r *http.Request) {
-
+	respondWithJson(w, 200, "ok")
 }
