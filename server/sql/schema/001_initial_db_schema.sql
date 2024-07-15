@@ -23,7 +23,9 @@ CREATE TABLE messages (
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
 	sender_id UUID NOT NULL,
-	room_id UUID NOT NULL
+	room_id UUID NOT NULL,
+	FOREIGN KEY(sender_id) REFERENCES users(id),
+	FOREIGN KEY(room_id) REFERENCES rooms(id)
 );
 
 
