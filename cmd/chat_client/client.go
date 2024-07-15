@@ -1,27 +1,31 @@
 package main
 
 import (
-	"io"
+	"context"
 	"log"
+	"time"
 
-	"github.com/Abi-Liu/TextTunnel/internal/client"
+	"nhooyr.io/websocket"
+	"nhooyr.io/websocket/wsjson"
 )
 
 func main() {
-	type Res struct {
-		Ok string
-	}
+	// Dials a server, writes a single JSON message and then
+	// closes the connection.
 
-	client := client.CreateHttpClient()
-	res, err := client.Get("http://localhost:8080/health")
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	c, _, err := websocket.Dial(ctx, "ws://localhost:8080/ws", nil)
 	if err != nil {
-		log.Print(err)
+		log.Fatal(err)
 	}
+	defer c.CloseNow()
 
-	dat, err := io.ReadAll(res.Body)
+	err = wsjson.Write(ctx, c, "hi")
 	if err != nil {
-		log.Print(err)
+		log.Fatal(err)
 	}
 
-	log.Print(string(dat))
+	c.Close(websocket.StatusNormalClosure, "")
 }
