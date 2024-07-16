@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/Abi-Liu/TextTunnel/config"
 	"github.com/Abi-Liu/TextTunnel/internal/database"
 	"github.com/google/uuid"
 )
@@ -13,8 +12,8 @@ type Hub struct {
 	Rooms map[string]*Room
 }
 
-func CreateHub(c *config.Config) *Hub {
-	rooms, err := c.DB.FindAllRooms(context.Background())
+func CreateHub(db *database.Queries) *Hub {
+	rooms, err := db.FindAllRooms(context.Background())
 
 	hub := &Hub{
 		Rooms: make(map[string]*Room),

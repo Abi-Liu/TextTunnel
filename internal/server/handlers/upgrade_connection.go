@@ -6,13 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Abi-Liu/TextTunnel/config"
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
 )
 
 func ConnectToRoom(w http.ResponseWriter, r *http.Request) {
-
 	conn, err := websocket.Accept(w, r, nil)
 	if err != nil {
 		log.Printf("error upgrading connection: %s", err)
