@@ -22,5 +22,5 @@ go.work
 go.work.sum
 .env
 
-server/chat_server
-client/chat_client
+cmd/chat_server/chat_server
+cmd/chat_client/chat_client
