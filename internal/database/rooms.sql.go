@@ -20,8 +20,8 @@ RETURNING id, name, created_at, updated_at, creator_id, owner_id
 type CreateRoomParams struct {
 	ID        uuid.UUID
 	Name      string
-	CreatorID uuid.NullUUID
-	OwnerID   uuid.NullUUID
+	CreatorID uuid.UUID
+	OwnerID   uuid.UUID
 }
 
 func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) (Room, error) {

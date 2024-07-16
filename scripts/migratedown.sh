@@ -4,5 +4,5 @@ if [ -f .env ]; then
     source .env
 fi
 
-cd server/sql/schema
+cd internal/server/sql/schema
 goose postgres $DATABASE_URL down

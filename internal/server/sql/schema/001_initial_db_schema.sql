@@ -11,8 +11,8 @@ CREATE TABLE rooms (
 	name VARCHAR(32) UNIQUE NOT NULL,
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
-	creator_id UUID,
-	owner_id UUID,
+	creator_id UUID NOT NULL,
+	owner_id UUID NOT NULL,
 	FOREIGN KEY(creator_id) REFERENCES users(id),
 	FOREIGN KEY(owner_id) REFERENCES users(id)
 );
@@ -30,6 +30,6 @@ CREATE TABLE messages (
 
 
 -- +goose Down
-DROP TABLE users;
-DROP TABLE rooms;
 DROP TABLE messages;
+DROP TABLE rooms;
+DROP TABLE users;

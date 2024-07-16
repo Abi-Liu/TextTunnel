@@ -11,6 +11,7 @@ import (
 )
 
 func UpgradeConnection(w http.ResponseWriter, r *http.Request) {
+
 	conn, err := websocket.Accept(w, r, nil)
 	if err != nil {
 		log.Printf("error upgrading connection: %s", err)

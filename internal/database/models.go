@@ -24,8 +24,8 @@ type Room struct {
 	Name      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	CreatorID uuid.NullUUID
-	OwnerID   uuid.NullUUID
+	CreatorID uuid.UUID
+	OwnerID   uuid.UUID
 }
 
 type User struct {
