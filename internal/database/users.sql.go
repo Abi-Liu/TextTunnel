@@ -12,22 +12,24 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (id, username, created_at, updated_at) 
-VALUES ($1, $2, timezone('utc', NOW()), timezone('utc', NOW()))
-RETURNING id, username, created_at, updated_at
+INSERT INTO users (id, username, password, created_at, updated_at) 
+VALUES ($1, $2, $3, timezone('utc', NOW()), timezone('utc', NOW()))
+RETURNING id, username, password, created_at, updated_at
 `
 
 type CreateUserParams struct {
 	ID       uuid.UUID
 	Username string
+	Password string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.ID, arg.Username)
+	row := q.db.QueryRowContext(ctx, createUser, arg.ID, arg.Username, arg.Password)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -47,7 +49,7 @@ func (q *Queries) DeleteUserById(ctx context.Context, id uuid.UUID) (int64, erro
 }
 
 const findUserById = `-- name: FindUserById :one
-SELECT id, username, created_at, updated_at FROM users WHERE id = $1
+SELECT id, username, password, created_at, updated_at FROM users WHERE id = $1
 `
 
 func (q *Queries) FindUserById(ctx context.Context, id uuid.UUID) (User, error) {
@@ -56,6 +58,7 @@ func (q *Queries) FindUserById(ctx context.Context, id uuid.UUID) (User, error) 
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -63,7 +66,7 @@ func (q *Queries) FindUserById(ctx context.Context, id uuid.UUID) (User, error) 
 }
 
 const findUserByUsername = `-- name: FindUserByUsername :one
-SELECT id, username, created_at, updated_at FROM users WHERE username = $1
+SELECT id, username, password, created_at, updated_at FROM users WHERE username = $1
 `
 
 func (q *Queries) FindUserByUsername(ctx context.Context, username string) (User, error) {
@@ -72,6 +75,7 @@ func (q *Queries) FindUserByUsername(ctx context.Context, username string) (User
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

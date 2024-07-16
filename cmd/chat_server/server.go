@@ -7,7 +7,6 @@ import (
 
 	"github.com/Abi-Liu/TextTunnel/config"
 	"github.com/Abi-Liu/TextTunnel/internal/server"
-	"github.com/Abi-Liu/TextTunnel/internal/server/ws"
 )
 
 func main() {
@@ -16,8 +15,7 @@ func main() {
 		log.Fatalf("Error creating config: %v", err)
 	}
 
-	hub := ws.CreateHub(config)
-	r := server.NewRouter(config, hub)
+	r := server.NewRouter(config)
 
 	server := &http.Server{
 		Addr:              ":" + config.Env.PORT,

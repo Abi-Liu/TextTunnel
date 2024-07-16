@@ -1,6 +1,6 @@
 -- name: CreateUser :one
-INSERT INTO users (id, username, created_at, updated_at) 
-VALUES ($1, $2, timezone('utc', NOW()), timezone('utc', NOW()))
+INSERT INTO users (id, username, password, created_at, updated_at) 
+VALUES ($1, $2, $3, timezone('utc', NOW()), timezone('utc', NOW()))
 RETURNING *;
 
 -- name: FindUserById :one

@@ -31,6 +31,7 @@ type Room struct {
 type User struct {
 	ID        uuid.UUID
 	Username  string
+	Password  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

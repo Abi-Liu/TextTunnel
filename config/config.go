@@ -4,11 +4,13 @@ import (
 	"database/sql"
 
 	"github.com/Abi-Liu/TextTunnel/internal/database"
+	"github.com/Abi-Liu/TextTunnel/internal/server/ws"
 	_ "github.com/lib/pq"
 )
 
 type Config struct {
 	DB  *database.Queries
+	Hub *ws.Hub
 	Env *Env
 }
 
@@ -25,8 +27,11 @@ func CreateConfig() (*Config, error) {
 
 	dbQueries := database.New(db)
 
+	hub := ws.CreateHub(dbQueries)
+
 	return &Config{
 		DB:  dbQueries,
+		Hub: hub,
 		Env: env,
 	}, nil
 }
