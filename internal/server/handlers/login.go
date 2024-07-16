@@ -14,7 +14,35 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request, c *config.Config) {
+	type Req struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
 
+	decoder := json.NewDecoder(r.Body)
+	req := &Req{}
+	err := decoder.Decode(req)
+
+	if err != nil {
+		RespondWithError(w, 500, fmt.Sprintf("Could not decode parameters: %s", err))
+		return
+	}
+
+	user, err := c.DB.FindUserByUsername(r.Context(), req.Username)
+	if err != nil {
+		RespondWithError(w, 404, fmt.Sprintf("User %s not found", req.Username))
+		return
+	}
+
+	ok := auth.CompareHashAndPassword(user.Password, req.Password)
+	if !ok {
+		RespondWithError(w, 400, "Unauthorized - Passwords do not match")
+		return
+	}
+
+	// here we would just return a authentication token back to the client
+	// for now i will just return the user
+	RespondWithJson(w, 200, models.DatabaseUserToUser(user))
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request, c *config.Config) {
