@@ -1,4 +1,4 @@
-package handlers
+package server
 
 import (
 	"encoding/json"
@@ -6,14 +6,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Abi-Liu/TextTunnel/config"
 	"github.com/Abi-Liu/TextTunnel/internal/database"
 	"github.com/Abi-Liu/TextTunnel/internal/server/auth"
 	"github.com/Abi-Liu/TextTunnel/internal/server/models"
 	"github.com/google/uuid"
 )
 
-func Login(w http.ResponseWriter, r *http.Request, c *config.Config) {
+func (c *Config) Login(w http.ResponseWriter, r *http.Request) {
 	type Req struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -40,12 +39,12 @@ func Login(w http.ResponseWriter, r *http.Request, c *config.Config) {
 		return
 	}
 
-	// here we would just return a authentication token back to the client
+	// TODO: here we would just return a authentication token back to the client
 	// for now i will just return the user
 	RespondWithJson(w, 200, models.DatabaseUserToUser(user))
 }
 
-func CreateUser(w http.ResponseWriter, r *http.Request, c *config.Config) {
+func (c *Config) CreateUser(w http.ResponseWriter, r *http.Request) {
 	type Req struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
