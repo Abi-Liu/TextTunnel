@@ -12,9 +12,9 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (id, username, password, created_at, updated_at) 
-VALUES ($1, $2, $3, timezone('utc', NOW()), timezone('utc', NOW()))
-RETURNING id, username, password, created_at, updated_at
+INSERT INTO users (id, username, password, created_at, updated_at, api_key) 
+VALUES ($1, $2, $3, timezone('utc', NOW()), timezone('utc', NOW()), encode(sha256(random()::text::bytea), 'hex'))
+RETURNING id, username, password, created_at, updated_at, api_key
 `
 
 type CreateUserParams struct {
@@ -32,6 +32,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ApiKey,
 	)
 	return i, err
 }
@@ -48,8 +49,26 @@ func (q *Queries) DeleteUserById(ctx context.Context, id uuid.UUID) (int64, erro
 	return result.RowsAffected()
 }
 
+const findUserByApiKey = `-- name: FindUserByApiKey :one
+SELECT id, username, password, created_at, updated_at, api_key FROM users WHERE api_key = $1
+`
+
+func (q *Queries) FindUserByApiKey(ctx context.Context, apiKey string) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUserByApiKey, apiKey)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ApiKey,
+	)
+	return i, err
+}
+
 const findUserById = `-- name: FindUserById :one
-SELECT id, username, password, created_at, updated_at FROM users WHERE id = $1
+SELECT id, username, password, created_at, updated_at, api_key FROM users WHERE id = $1
 `
 
 func (q *Queries) FindUserById(ctx context.Context, id uuid.UUID) (User, error) {
@@ -61,12 +80,13 @@ func (q *Queries) FindUserById(ctx context.Context, id uuid.UUID) (User, error) 
 		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ApiKey,
 	)
 	return i, err
 }
 
 const findUserByUsername = `-- name: FindUserByUsername :one
-SELECT id, username, password, created_at, updated_at FROM users WHERE username = $1
+SELECT id, username, password, created_at, updated_at, api_key FROM users WHERE username = $1
 `
 
 func (q *Queries) FindUserByUsername(ctx context.Context, username string) (User, error) {
@@ -78,6 +98,7 @@ func (q *Queries) FindUserByUsername(ctx context.Context, username string) (User
 		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ApiKey,
 	)
 	return i, err
 }
