@@ -10,7 +10,7 @@ func (c *Config) NewRouter() *http.ServeMux {
 	r.HandleFunc("GET /health", GetHealthCheck)
 	r.HandleFunc("POST /users", c.CreateUser)
 	r.HandleFunc("POST /login", c.Login)
-	r.HandleFunc("GET /ws/{roomId}", c.ConnectToRoom)
+	r.HandleFunc("GET /ws/{roomId}", c.EnsureAuth(c.ConnectToRoom))
 
 	return r
 }

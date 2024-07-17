@@ -39,8 +39,6 @@ func (c *Config) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: here we would just return a authentication token back to the client
-	// for now i will just return the user
 	RespondWithJson(w, 200, models.DatabaseUserToUser(user))
 }
 

@@ -1,6 +1,12 @@
 package auth
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"errors"
+	"net/http"
+	"strings"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 func HashPassword(password string) (string, error) {
 	dat, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -20,4 +26,13 @@ func CompareHashAndPassword(hashedPassword, password string) bool {
 	}
 
 	return true
+}
+
+func GetAuthorizationKey(r *http.Request) (string, error) {
+	authHeader := r.Header.Get("Authorization")
+	arr := strings.Split(authHeader, "Bearer ")
+	if len(arr) < 2 {
+		return "", errors.New("Invalid authorization key")
+	}
+	return arr[1], nil
 }

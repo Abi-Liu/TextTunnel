@@ -39,5 +39,8 @@ func (c *Config) ConnectToRoom(w http.ResponseWriter, r *http.Request, user data
 
 	room.Join <- client
 
+	go client.Read()
+	client.Write()
+
 	conn.Close(websocket.StatusNormalClosure, "")
 }
