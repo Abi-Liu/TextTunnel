@@ -35,16 +35,20 @@ func main() {
 
 	// c.Close(websocket.StatusNormalClosure, "")
 
-	_, err := auth.LoadToken()
+	fileSystem := auth.OSFileSystem{}
+	configManager := auth.ConfigManager{FS: &fileSystem}
+
+	_, err := configManager.LoadToken()
 	if err != nil {
-		log.Print("Expected no token")
+		log.Print("Expected err")
 	}
 
-	auth.SaveToken("test")
-	token, err := auth.LoadToken()
+	err = configManager.SaveToken("test")
 	if err != nil {
-		log.Print("Unexpected no token")
+		log.Print("Expected nil error when asving")
 	}
 
+	token, err := configManager.LoadToken()
 	log.Print(token)
+
 }
