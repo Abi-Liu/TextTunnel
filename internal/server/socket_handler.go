@@ -1,16 +1,23 @@
 package server
 
 import (
-	"context"
 	"log"
 	"net/http"
-	"time"
 
+	"github.com/Abi-Liu/TextTunnel/internal/database"
+	"github.com/Abi-Liu/TextTunnel/internal/server/ws"
 	"nhooyr.io/websocket"
-	"nhooyr.io/websocket/wsjson"
 )
 
-func ConnectToRoom(w http.ResponseWriter, r *http.Request) {
+func (c *Config) ConnectToRoom(w http.ResponseWriter, r *http.Request, user database.User) {
+	roomId := r.PathValue("roomId")
+	room, ok := c.Hub.Rooms[roomId]
+	if !ok {
+		RespondWithError(w, 404, "Room does not exist")
+		log.Printf("Error, room does not exist")
+		return
+	}
+
 	conn, err := websocket.Accept(w, r, nil)
 	if err != nil {
 		log.Printf("error upgrading connection: %s", err)
@@ -19,18 +26,30 @@ func ConnectToRoom(w http.ResponseWriter, r *http.Request) {
 
 	defer conn.CloseNow()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// defer cancel()
 
-	var v interface{}
-	err = wsjson.Read(ctx, conn, &v)
-
-	if err != nil {
-		log.Println(err)
-		return
+	client := &ws.Client{
+		ID:        user.ID,
+		Username:  user.Username,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Receive:   make(chan *ws.Message, 1024),
+		Room:      room,
+		Conn:      conn,
 	}
 
-	log.Printf("%v", v)
+	room.Join <- client
+
+	// var v interface{}
+	// err = wsjson.Read(ctx, conn, &v)
+
+	// if err != nil {
+	// 	log.Println(err)
+	// 	return
+	// }
+
+	// log.Printf("%v", v)
 
 	conn.Close(websocket.StatusNormalClosure, "")
 }

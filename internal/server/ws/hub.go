@@ -2,10 +2,8 @@ package ws
 
 import (
 	"context"
-	"time"
 
 	"github.com/Abi-Liu/TextTunnel/internal/database"
-	"github.com/google/uuid"
 )
 
 type Hub struct {
@@ -28,53 +26,33 @@ func CreateHub(db *database.Queries) *Hub {
 	return hub
 }
 
+// for each room we run the room on a new goroutine
+func (h *Hub) Run() {
+	for _, room := range h.Rooms {
+		go room.RunRoom()
+	}
+}
+
 func (h *Hub) CreateRoom(r database.Room) bool {
 	_, ok := h.Rooms[r.ID.String()]
 	if !ok {
 		return false
 	}
-	h.Rooms[r.ID.String()] = &Room{
+
+	room := &Room{
 		ID:        r.ID,
 		Name:      r.Name,
 		CreatedAt: r.CreatedAt,
 		UpdatedAt: r.UpdatedAt,
 		OwnerId:   r.OwnerID,
 		CreatorId: r.CreatorID,
-		Join:      make(chan *Client),
-		Leave:     make(chan *Client),
-		Forward:   make(chan *Message),
+		Clients:   make(map[string]*Client),
+		Join:      make(chan *Client, 1024),
+		Leave:     make(chan *Client, 1024),
+		Broadcast: make(chan *Message, 1024),
 	}
+	h.Rooms[r.ID.String()] = room
 
+	go room.RunRoom()
 	return true
-}
-
-type Room struct {
-	ID        uuid.UUID
-	Name      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	CreatorId uuid.UUID
-	OwnerId   uuid.UUID
-	Clients   map[string]*Client
-	Join      chan *Client
-	Leave     chan *Client
-	Forward   chan *Message
-}
-
-type Client struct {
-	id        uuid.UUID
-	Username  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Receive   chan *Message
-	Room      *Room
-}
-
-type Message struct {
-	Id        uuid.UUID
-	Content   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	SenderId  uuid.UUID
-	RoomId    uuid.UUID
 }
