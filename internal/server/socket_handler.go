@@ -26,9 +26,6 @@ func (c *Config) ConnectToRoom(w http.ResponseWriter, r *http.Request, user data
 
 	defer conn.CloseNow()
 
-	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	// defer cancel()
-
 	client := &ws.Client{
 		ID:        user.ID,
 		Username:  user.Username,
@@ -37,19 +34,10 @@ func (c *Config) ConnectToRoom(w http.ResponseWriter, r *http.Request, user data
 		Receive:   make(chan *ws.Message, 1024),
 		Room:      room,
 		Conn:      conn,
+		DB:        c.DB,
 	}
 
 	room.Join <- client
-
-	// var v interface{}
-	// err = wsjson.Read(ctx, conn, &v)
-
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return
-	// }
-
-	// log.Printf("%v", v)
 
 	conn.Close(websocket.StatusNormalClosure, "")
 }
