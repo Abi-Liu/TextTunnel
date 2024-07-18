@@ -68,9 +68,15 @@ func Start(cm *auth.ConfigManager) {
 			log.Printf("Error writing to socket: %s", err)
 			return
 		}
-		err = <-session.errChan
-		log.Printf("Error: %s", err)
-		return
+		// program is blocking here. we need to fix this
+		select {
+		case err := <-session.errChan:
+			err = <-session.errChan
+			log.Printf("Error: %s", err)
+			return
+		default:
+			continue
+		}
 	}
 }
 

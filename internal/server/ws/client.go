@@ -20,6 +20,7 @@ type Client struct {
 	Receive   chan *Message
 	Room      *Room
 	DB        *database.Queries
+	Ctx       context.Context
 }
 
 type Message struct {
@@ -44,7 +45,7 @@ func databaseMessageToMessage(message database.Message) Message {
 
 func (c *Client) Write() {
 	for msg := range c.Receive {
-		err := wsjson.Write(context.Background(), c.Conn, msg)
+		err := wsjson.Write(c.Ctx, c.Conn, msg)
 		if err != nil {
 			log.Printf("Failed to write to client: %s", err)
 			return
@@ -53,19 +54,15 @@ func (c *Client) Write() {
 }
 
 func (c *Client) Read() {
-	type Req struct {
-		Content string `json:"Content"`
-	}
 	for {
-		// req := &Req{}
 		var v interface{}
-		err := wsjson.Read(context.Background(), c.Conn, &v)
+		err := wsjson.Read(c.Ctx, c.Conn, &v)
 		if err != nil {
-			log.Printf("Error reading from client: %s", err)
+			log.Printf("Error reading from client: %s\n%v", err, v)
 			return
 		}
 		log.Print(v)
-		dbMsg, err := c.DB.CreateMessage(context.Background(), database.CreateMessageParams{
+		dbMsg, err := c.DB.CreateMessage(c.Ctx, database.CreateMessageParams{
 			ID:       uuid.New(),
 			Content:  v.(string),
 			SenderID: c.ID,
