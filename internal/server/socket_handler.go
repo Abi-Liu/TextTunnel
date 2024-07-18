@@ -12,7 +12,6 @@ import (
 func (c *Config) ConnectToRoom(w http.ResponseWriter, r *http.Request, user database.User) {
 	roomId := r.PathValue("roomId")
 	room, ok := c.Hub.Rooms[roomId]
-	log.Print(c.Hub.Rooms)
 	if !ok {
 		RespondWithError(w, 404, "Room does not exist")
 		log.Printf("Error, room does not exist")
