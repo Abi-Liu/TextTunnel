@@ -1,8 +1,7 @@
 package main
 
 import (
-	"log"
-
+	"github.com/Abi-Liu/TextTunnel/internal/client"
 	"github.com/Abi-Liu/TextTunnel/internal/client/auth"
 )
 
@@ -35,20 +34,9 @@ func main() {
 
 	// c.Close(websocket.StatusNormalClosure, "")
 
-	fileSystem := auth.OSFileSystem{}
-	configManager := auth.ConfigManager{FS: &fileSystem}
+	fs := auth.OSFileSystem{}
+	cm := auth.ConfigManager{FS: &fs}
 
-	_, err := configManager.LoadToken()
-	if err != nil {
-		log.Print("Expected err")
-	}
-
-	err = configManager.SaveToken("test")
-	if err != nil {
-		log.Print("Expected nil error when asving")
-	}
-
-	token, err := configManager.LoadToken()
-	log.Print(token)
+	client.Start(&cm)
 
 }
