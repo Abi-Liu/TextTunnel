@@ -44,30 +44,36 @@ func databaseMessageToMessage(message database.Message) Message {
 
 func (c *Client) Write() {
 	for msg := range c.Receive {
-		wsjson.Write(context.Background(), c.Conn, msg)
+		err := wsjson.Write(context.Background(), c.Conn, msg)
+		if err != nil {
+			log.Printf("Failed to write to client: %s", err)
+			return
+		}
 	}
 }
 
 func (c *Client) Read() {
 	type Req struct {
-		Content  string    `json:"Content"`
-		SenderId uuid.UUID `json:"sender_id"`
-		RoomId   uuid.UUID `json:"room_id"`
+		Content string `json:"Content"`
 	}
 	for {
-		req := &Req{}
-		err := wsjson.Read(context.Background(), c.Conn, req)
+		// req := &Req{}
+		var v interface{}
+		err := wsjson.Read(context.Background(), c.Conn, &v)
 		if err != nil {
 			log.Printf("Error reading from client: %s", err)
+			return
 		}
+		log.Print(v)
 		dbMsg, err := c.DB.CreateMessage(context.Background(), database.CreateMessageParams{
-			ID:       c.ID,
-			Content:  req.Content,
-			SenderID: req.SenderId,
-			RoomID:   req.RoomId,
+			ID:       uuid.New(),
+			Content:  v.(string),
+			SenderID: c.ID,
+			RoomID:   c.Room.ID,
 		})
 		if err != nil {
 			log.Printf("Failed to insert message: %s", err)
+			return
 		}
 
 		msg := databaseMessageToMessage(dbMsg)

@@ -16,6 +16,20 @@ import (
 	"nhooyr.io/websocket/wsjson"
 )
 
+type Message struct {
+	Id        uuid.UUID `json:"id"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	SenderId  uuid.UUID `json:"sender_id"`
+	RoomId    uuid.UUID `json:"room_id"`
+}
+
+type Session struct {
+	c       *websocket.Conn
+	errChan chan error
+}
+
 const ROOM_ID = "ea4d1f5a-8e07-4588-b7be-43c563960590"
 
 func Start(cm *auth.ConfigManager) {
@@ -31,38 +45,48 @@ func Start(cm *auth.ConfigManager) {
 	header := http.Header{}
 	header.Set("Authorization", "Bearer "+token)
 	dialOpts := &websocket.DialOptions{HTTPHeader: header}
-	c, _, err := websocket.Dial(context.Background(), "ws://localhost:8080/ws/"+roomId, dialOpts)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	c, _, err := websocket.Dial(ctx, "ws://localhost:8080/ws/"+roomId, dialOpts)
 	if err != nil {
 		log.Printf("Could not connect to socket: %s", err)
 		return
 	}
 
-	go read(c)
+	defer c.Close(websocket.StatusGoingAway, "going away")
+
+	session := &Session{c: c, errChan: make(chan error)}
+
+	go session.read(ctx, c)
 	for {
 		s.Scan()
 		msg := s.Text()
-		write(c, msg)
+		err := session.write(ctx, c, msg)
+		if err != nil {
+			log.Printf("Error writing to socket: %s", err)
+			return
+		}
+		err = <-session.errChan
+		log.Printf("Error: %s", err)
+		return
 	}
 }
 
-func read(c *websocket.Conn) {
-	type Message struct {
-		Id        uuid.UUID `json:"id"`
-		Content   string    `json:"content"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
-		SenderId  uuid.UUID `json:"sender_id"`
-		RoomId    uuid.UUID `json:"room_id"`
-	}
-
+func (s *Session) read(ctx context.Context, c *websocket.Conn) {
 	for {
 		msg := &Message{}
-		wsjson.Read(context.Background(), c, msg)
-		log.Print(msg)
-
+		err := wsjson.Read(ctx, c, msg)
+		if err != nil {
+			s.errChan <- err
+			return
+		}
+		log.Print(msg.Content)
 	}
 }
 
-func write(c *websocket.Conn, message string) {
-	wsjson.Write(context.Background(), c, message)
+func (s *Session) write(ctx context.Context, c *websocket.Conn, message string) error {
+	err := wsjson.Write(ctx, c, message)
+	return err
 }

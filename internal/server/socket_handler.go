@@ -43,4 +43,5 @@ func (c *Config) ConnectToRoom(w http.ResponseWriter, r *http.Request, user data
 	client.Write()
 
 	conn.Close(websocket.StatusNormalClosure, "")
+	room.Leave <- client
 }
