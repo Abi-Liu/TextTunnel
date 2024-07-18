@@ -68,3 +68,20 @@ func TestSaveToken(t *testing.T) {
 		t.Fatalf("Expected Test, Received: %s", string(data))
 	}
 }
+
+func TestLoadToken(t *testing.T) {
+	fs := NewMockFileSystem()
+	cm := ConfigManager{FS: fs}
+	token, err := cm.LoadToken()
+	if err == nil {
+		t.Fatalf("Expected error, received nil")
+	}
+
+	expectedPath := fmt.Sprintf("%s/.texttunnel/config.json", HOME_DIR)
+	fs.files[expectedPath] = []byte(`{"token": "Test"}`)
+
+	token, err = cm.LoadToken()
+	if token != "Test" {
+		t.Fatalf("Expected Test, Received %s", token)
+	}
+}
