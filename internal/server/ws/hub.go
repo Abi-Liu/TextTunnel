@@ -35,7 +35,7 @@ func (h *Hub) Run() {
 
 func (h *Hub) CreateRoom(r database.Room) bool {
 	_, ok := h.Rooms[r.ID.String()]
-	if !ok {
+	if ok {
 		return false
 	}
 
