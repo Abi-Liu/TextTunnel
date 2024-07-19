@@ -12,3 +12,6 @@ SELECT * FROM messages WHERE room_id = $1;
 
 -- name: GetMessagesByRoomAndUser :many
 SELECT * FROM messages WHERE room_id = $1 AND sender_id = $2;
+
+-- name: GetPreviousRoomMessages :many
+SELECT * FROM messages WHERE room_id = $1 ORDER BY created_at ASC LIMIT $2;

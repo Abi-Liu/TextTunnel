@@ -150,3 +150,42 @@ func (q *Queries) GetMessagesByUser(ctx context.Context, senderID uuid.UUID) ([]
 	}
 	return items, nil
 }
+
+const getPreviousRoomMessages = `-- name: GetPreviousRoomMessages :many
+SELECT id, content, created_at, updated_at, sender_id, room_id FROM messages WHERE room_id = $1 ORDER BY created_at ASC LIMIT $2
+`
+
+type GetPreviousRoomMessagesParams struct {
+	RoomID uuid.UUID
+	Limit  int32
+}
+
+func (q *Queries) GetPreviousRoomMessages(ctx context.Context, arg GetPreviousRoomMessagesParams) ([]Message, error) {
+	rows, err := q.db.QueryContext(ctx, getPreviousRoomMessages, arg.RoomID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Message
+	for rows.Next() {
+		var i Message
+		if err := rows.Scan(
+			&i.ID,
+			&i.Content,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.SenderID,
+			&i.RoomID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
