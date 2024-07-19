@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Abi-Liu/TextTunnel/internal/database"
@@ -20,6 +21,7 @@ type Client struct {
 	Receive   chan *Message
 	Room      *Room
 	DB        *database.Queries
+	Ctx       context.Context
 }
 
 type Message struct {
@@ -43,34 +45,53 @@ func databaseMessageToMessage(message database.Message) Message {
 }
 
 func (c *Client) Write() {
-	for msg := range c.Receive {
-		wsjson.Write(context.Background(), c.Conn, msg)
+	for {
+		select {
+		case msg := <-c.Receive:
+			err := wsjson.Write(c.Ctx, c.Conn, msg)
+			if err != nil {
+				if !strings.Contains(err.Error(), "closed network connection") {
+					log.Printf("Failed to write to client: %s", err)
+				}
+				return
+			}
+
+		case <-c.Ctx.Done():
+			log.Printf("Context done in write method")
+			return
+		}
 	}
 }
 
 func (c *Client) Read() {
-	type Req struct {
-		Content  string    `json:"Content"`
-		SenderId uuid.UUID `json:"sender_id"`
-		RoomId   uuid.UUID `json:"room_id"`
-	}
 	for {
-		req := &Req{}
-		err := wsjson.Read(context.Background(), c.Conn, req)
-		if err != nil {
-			log.Printf("Error reading from client: %s", err)
-		}
-		dbMsg, err := c.DB.CreateMessage(context.Background(), database.CreateMessageParams{
-			ID:       c.ID,
-			Content:  req.Content,
-			SenderID: req.SenderId,
-			RoomID:   req.RoomId,
-		})
-		if err != nil {
-			log.Printf("Failed to insert message: %s", err)
-		}
+		select {
+		case <-c.Ctx.Done():
+			log.Printf("Context done")
+			return
+		default:
+			var v interface{}
+			err := wsjson.Read(c.Ctx, c.Conn, &v)
+			if err != nil {
+				if websocket.CloseStatus(err) != websocket.StatusNormalClosure {
+					log.Printf("Error reading from client: %s\n%v", err, v)
+				}
+				return
+			}
 
-		msg := databaseMessageToMessage(dbMsg)
-		c.Room.Broadcast <- &msg
+			dbMsg, err := c.DB.CreateMessage(c.Ctx, database.CreateMessageParams{
+				ID:       uuid.New(),
+				Content:  v.(string),
+				SenderID: c.ID,
+				RoomID:   c.Room.ID,
+			})
+			if err != nil {
+				log.Printf("Failed to insert message: %s", err)
+				return
+			}
+
+			msg := databaseMessageToMessage(dbMsg)
+			c.Room.Broadcast <- &msg
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,9 +26,11 @@ func (r *Room) RunRoom() {
 		select {
 		case client := <-r.Join:
 			r.Clients[client.ID.String()] = client
+			log.Printf("Client Joined: %v", client.Username)
 		case client := <-r.Leave:
 			delete(r.Clients, client.ID.String())
 			client.Conn.Close(websocket.StatusNormalClosure, "Normal Closure")
+			log.Printf("Client left: %v", client.Username)
 		case msg := <-r.Broadcast:
 			for _, client := range r.Clients {
 				client.Receive <- msg

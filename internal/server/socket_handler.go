@@ -14,7 +14,6 @@ func (c *Config) ConnectToRoom(w http.ResponseWriter, r *http.Request, user data
 	room, ok := c.Hub.Rooms[roomId]
 	if !ok {
 		RespondWithError(w, 404, "Room does not exist")
-		log.Printf("Error, room does not exist")
 		return
 	}
 
@@ -23,8 +22,6 @@ func (c *Config) ConnectToRoom(w http.ResponseWriter, r *http.Request, user data
 		log.Printf("error upgrading connection: %s", err)
 		return
 	}
-
-	defer conn.CloseNow()
 
 	client := &ws.Client{
 		ID:        user.ID,
@@ -35,6 +32,7 @@ func (c *Config) ConnectToRoom(w http.ResponseWriter, r *http.Request, user data
 		Room:      room,
 		Conn:      conn,
 		DB:        c.DB,
+		Ctx:       r.Context(),
 	}
 
 	room.Join <- client
@@ -42,5 +40,5 @@ func (c *Config) ConnectToRoom(w http.ResponseWriter, r *http.Request, user data
 	go client.Read()
 	client.Write()
 
-	conn.Close(websocket.StatusNormalClosure, "")
+	room.Leave <- client
 }
