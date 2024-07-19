@@ -80,7 +80,7 @@ func Start(cm *auth.ConfigManager) {
 			return
 		case sig := <-sigChan:
 			log.Printf("Received signal: %v", sig)
-			c.Close(websocket.StatusGoingAway, "Stopping application")
+			c.Close(websocket.StatusNormalClosure, "Stopping application")
 			return
 		default:
 			continue

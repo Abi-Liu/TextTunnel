@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Abi-Liu/TextTunnel/internal/database"
@@ -49,7 +50,9 @@ func (c *Client) Write() {
 		case msg := <-c.Receive:
 			err := wsjson.Write(c.Ctx, c.Conn, msg)
 			if err != nil {
-				log.Printf("Failed to write to client: %s", err)
+				if !strings.Contains(err.Error(), "closed network connection") {
+					log.Printf("Failed to write to client: %s", err)
+				}
 				return
 			}
 
@@ -70,10 +73,12 @@ func (c *Client) Read() {
 			var v interface{}
 			err := wsjson.Read(c.Ctx, c.Conn, &v)
 			if err != nil {
-				log.Printf("Error reading from client: %s\n%v", err, v)
+				if websocket.CloseStatus(err) != websocket.StatusNormalClosure {
+					log.Printf("Error reading from client: %s\n%v", err, v)
+				}
 				return
 			}
-			log.Print(v)
+
 			dbMsg, err := c.DB.CreateMessage(c.Ctx, database.CreateMessageParams{
 				ID:       uuid.New(),
 				Content:  v.(string),
