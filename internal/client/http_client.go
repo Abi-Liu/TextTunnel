@@ -17,7 +17,6 @@ func CreateHttpClient() *HttpClient {
 			Timeout: 20 * time.Second,
 		},
 	}
-
 	return client
 }
 
