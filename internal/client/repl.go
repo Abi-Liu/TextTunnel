@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"os"
@@ -54,10 +56,13 @@ func Start(cm *auth.ConfigManager) {
 		log.Printf("Could not connect to socket: %s", err)
 		return
 	}
-
 	defer c.Close(websocket.StatusGoingAway, "going away")
 
 	session := &Session{c: c, errChan: make(chan error)}
+
+	// handle cases where user closes terminal or sends interrupt signal
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGHUP)
 
 	go session.read(ctx, c)
 	for {
@@ -68,11 +73,14 @@ func Start(cm *auth.ConfigManager) {
 			log.Printf("Error writing to socket: %s", err)
 			return
 		}
-		// program is blocking here. we need to fix this
+
 		select {
 		case err := <-session.errChan:
-			err = <-session.errChan
 			log.Printf("Error: %s", err)
+			return
+		case sig := <-sigChan:
+			log.Printf("Received signal: %v", sig)
+			c.Close(websocket.StatusGoingAway, "Stopping application")
 			return
 		default:
 			continue

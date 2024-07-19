@@ -44,10 +44,17 @@ func databaseMessageToMessage(message database.Message) Message {
 }
 
 func (c *Client) Write() {
-	for msg := range c.Receive {
-		err := wsjson.Write(c.Ctx, c.Conn, msg)
-		if err != nil {
-			log.Printf("Failed to write to client: %s", err)
+	for {
+		select {
+		case msg := <-c.Receive:
+			err := wsjson.Write(c.Ctx, c.Conn, msg)
+			if err != nil {
+				log.Printf("Failed to write to client: %s", err)
+				return
+			}
+
+		case <-c.Ctx.Done():
+			log.Printf("Context done in write method")
 			return
 		}
 	}
@@ -55,25 +62,31 @@ func (c *Client) Write() {
 
 func (c *Client) Read() {
 	for {
-		var v interface{}
-		err := wsjson.Read(c.Ctx, c.Conn, &v)
-		if err != nil {
-			log.Printf("Error reading from client: %s\n%v", err, v)
+		select {
+		case <-c.Ctx.Done():
+			log.Printf("Context done")
 			return
-		}
-		log.Print(v)
-		dbMsg, err := c.DB.CreateMessage(c.Ctx, database.CreateMessageParams{
-			ID:       uuid.New(),
-			Content:  v.(string),
-			SenderID: c.ID,
-			RoomID:   c.Room.ID,
-		})
-		if err != nil {
-			log.Printf("Failed to insert message: %s", err)
-			return
-		}
+		default:
+			var v interface{}
+			err := wsjson.Read(c.Ctx, c.Conn, &v)
+			if err != nil {
+				log.Printf("Error reading from client: %s\n%v", err, v)
+				return
+			}
+			log.Print(v)
+			dbMsg, err := c.DB.CreateMessage(c.Ctx, database.CreateMessageParams{
+				ID:       uuid.New(),
+				Content:  v.(string),
+				SenderID: c.ID,
+				RoomID:   c.Room.ID,
+			})
+			if err != nil {
+				log.Printf("Failed to insert message: %s", err)
+				return
+			}
 
-		msg := databaseMessageToMessage(dbMsg)
-		c.Room.Broadcast <- &msg
+			msg := databaseMessageToMessage(dbMsg)
+			c.Room.Broadcast <- &msg
+		}
 	}
 }
