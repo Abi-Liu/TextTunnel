@@ -66,7 +66,6 @@ func (m LoginModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "tab", "shift+tab", "enter", "up", "down":
 			s := msg.String()
-
 			// exit if the user presses enter while the submit button was focused
 			if s == "enter" && m.focusIndex == len(m.inputs) {
 				valid := validateInputs(m.inputs)
