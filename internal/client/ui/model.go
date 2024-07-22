@@ -15,11 +15,16 @@ const (
 )
 
 type MainModel struct {
-	State      sessionState
-	AuthToken  string
-	Width      int
-	Height     int
-	LoginModel tea.Model
+	State             sessionState
+	AuthToken         string
+	Width             int
+	Height            int
+	UnauthorizedModel tea.Model
+	LoginModel        tea.Model
+}
+
+type navigateToPageMsg struct {
+	state sessionState
 }
 
 func NewMainModel(token string) MainModel {
@@ -29,11 +34,13 @@ func NewMainModel(token string) MainModel {
 	}
 
 	login := NewLoginModel()
+	unauthorized := NewUnauthorizedModel()
 
 	return MainModel{
-		State:      state,
-		AuthToken:  token,
-		LoginModel: login,
+		State:             state,
+		AuthToken:         token,
+		LoginModel:        login,
+		UnauthorizedModel: unauthorized,
 	}
 }
 
@@ -68,9 +75,10 @@ func (m MainModel) View() string {
 	switch m.State {
 	case unauthorizedView:
 		// show unauthorized view
-		return m.LoginModel.View()
+		return m.UnauthorizedModel.View()
 	case loginView:
 		// show login view
+		return m.LoginModel.View()
 	case signUpView:
 		// show sign up view
 	case roomListView:
