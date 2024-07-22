@@ -17,21 +17,27 @@ var (
 	noStyle             = lipgloss.NewStyle()
 	helpStyle           = blurredStyle
 	cursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
-
-	focusedButton = focusedStyle.Render("[ Login ]")
-	blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Login"))
 )
 
-type LoginModel struct {
+var focusedButton string
+var blurredButton string
+
+type FormModel struct {
 	focusIndex int
 	inputs     []textinput.Model
 	cursorMode cursor.Mode
 	error      string
+	state      sessionState
 }
 
-func NewLoginModel() LoginModel {
-	m := LoginModel{
-		inputs: make([]textinput.Model, 2),
+func NewFormModel(state sessionState) FormModel {
+	m := FormModel{state: state}
+	if state == loginView {
+		m.inputs = make([]textinput.Model, 2)
+		focusedButton = focusedStyle.Render("[ Login ]")
+		blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Login"))
+	} else {
+		m.inputs = make([]textinput.Model, 3)
 	}
 
 	for i := range m.inputs {
@@ -49,6 +55,11 @@ func NewLoginModel() LoginModel {
 			input.Placeholder = "Password"
 			input.EchoMode = textinput.EchoPassword
 			input.EchoCharacter = '*'
+		case 2:
+			input.Placeholder = "Confirm Password"
+			input.EchoMode = textinput.EchoPassword
+			input.EchoCharacter = '*'
+
 		}
 		m.inputs[i] = input
 	}
@@ -56,11 +67,11 @@ func NewLoginModel() LoginModel {
 	return m
 }
 
-func (m LoginModel) Init() tea.Cmd {
+func (m FormModel) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m LoginModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
+func (m FormModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := message.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -70,7 +81,13 @@ func (m LoginModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			if s == "enter" && m.focusIndex == len(m.inputs) {
 				valid := validateInputs(m.inputs)
 				if !valid {
-					m.error = "Username and password cannot be empty"
+					m.error = "Username and password cannot be empty\n"
+				}
+				if m.state == signUpView {
+					valid = validatePassword(m.inputs)
+					if !valid {
+						m.error = "Passwords do not match"
+					}
 				}
 			}
 
@@ -110,7 +127,7 @@ func (m LoginModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *LoginModel) updateInputs(msg tea.Msg) tea.Cmd {
+func (m *FormModel) updateInputs(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, len(m.inputs))
 
 	// Only text inputs with Focus() set will respond, so it's safe to simply
@@ -122,7 +139,7 @@ func (m *LoginModel) updateInputs(msg tea.Msg) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m LoginModel) View() string {
+func (m FormModel) View() string {
 	var b strings.Builder
 
 	for i := range m.inputs {
@@ -153,4 +170,8 @@ func validateInputs(inputs []textinput.Model) bool {
 	}
 
 	return true
+}
+
+func validatePassword(inputs []textinput.Model) bool {
+	return inputs[1].Value() == inputs[2].Value()
 }

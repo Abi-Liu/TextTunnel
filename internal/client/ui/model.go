@@ -21,6 +21,7 @@ type MainModel struct {
 	Height            int
 	UnauthorizedModel tea.Model
 	LoginModel        tea.Model
+	SignUpModel       tea.Model
 }
 
 type navigateToPageMsg struct {
@@ -33,14 +34,16 @@ func NewMainModel(token string) MainModel {
 		state = unauthorizedView
 	}
 
-	login := NewLoginModel()
 	unauthorized := NewUnauthorizedModel()
+	login := NewFormModel(loginView)
+	signUp := NewFormModel(signUpView)
 
 	return MainModel{
 		State:             state,
 		AuthToken:         token,
 		LoginModel:        login,
 		UnauthorizedModel: unauthorized,
+		SignUpModel:       signUp,
 	}
 }
 
@@ -70,6 +73,10 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				login, command := m.LoginModel.Update(message)
 				m.LoginModel = login
 				cmd = command
+			case signUpView:
+				signup, command := m.SignUpModel.Update(message)
+				m.SignUpModel = signup
+				cmd = command
 			}
 		}
 	}
@@ -87,6 +94,7 @@ func (m MainModel) View() string {
 		return m.LoginModel.View()
 	case signUpView:
 		// show sign up view
+		return m.SignUpModel.View()
 	case roomListView:
 		// show list of rooms available
 	case roomView:
