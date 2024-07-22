@@ -54,6 +54,8 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.Height = msg.Height
 		m.Width = msg.Width
+	case navigateToPageMsg:
+		m.State = msg.state
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
@@ -61,6 +63,10 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		default:
 			switch m.State {
 			case unauthorizedView:
+				unauthorized, command := m.UnauthorizedModel.Update(msg)
+				m.UnauthorizedModel = unauthorized
+				cmd = command
+			case loginView:
 				login, command := m.LoginModel.Update(message)
 				m.LoginModel = login
 				cmd = command
