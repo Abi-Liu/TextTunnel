@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"github.com/Abi-Liu/TextTunnel/internal/client/auth"
+	"github.com/Abi-Liu/TextTunnel/internal/client/http"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -16,7 +18,9 @@ const (
 
 type MainModel struct {
 	State             sessionState
+	Cm                auth.ConfigManager
 	AuthToken         string
+	User              http.User
 	Width             int
 	Height            int
 	UnauthorizedModel tea.Model
@@ -24,11 +28,17 @@ type MainModel struct {
 	SignUpModel       tea.Model
 }
 
+var httpClient = http.CreateHttpClient()
+
 type navigateToPageMsg struct {
 	state sessionState
 }
 
-func NewMainModel(token string) MainModel {
+type authorizationMsg struct {
+	user http.User
+}
+
+func NewMainModel(token string, cm auth.ConfigManager) MainModel {
 	state := roomListView
 	if token == "" {
 		state = unauthorizedView
@@ -40,6 +50,7 @@ func NewMainModel(token string) MainModel {
 
 	return MainModel{
 		State:             state,
+		Cm:                cm,
 		AuthToken:         token,
 		LoginModel:        login,
 		UnauthorizedModel: unauthorized,
@@ -59,6 +70,13 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		m.Width = msg.Width
 	case navigateToPageMsg:
 		m.State = msg.state
+	case authorizationMsg:
+		m.User = msg.user
+		// save the authorization token
+		m.Cm.SaveToken(msg.user.ApiKey)
+
+		// switch the state to the room list view
+		m.State = roomListView
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":

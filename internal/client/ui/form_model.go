@@ -1,9 +1,13 @@
 package ui
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 
+	"github.com/Abi-Liu/TextTunnel/internal/client/http"
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -38,6 +42,8 @@ func NewFormModel(state sessionState) FormModel {
 		blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Login"))
 	} else {
 		m.inputs = make([]textinput.Model, 3)
+		focusedButton = focusedStyle.Render("[ Sign up ]")
+		blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Sign up"))
 	}
 
 	for i := range m.inputs {
@@ -77,7 +83,7 @@ func (m FormModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "tab", "shift+tab", "enter", "up", "down":
 			s := msg.String()
-			// exit if the user presses enter while the submit button was focused
+
 			if s == "enter" && m.focusIndex == len(m.inputs) {
 				valid := validateInputs(m.inputs)
 				if !valid {
@@ -89,6 +95,26 @@ func (m FormModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 						m.error = "Passwords do not match"
 					}
 				}
+				if !valid {
+					return m, nil
+				}
+				var cmd tea.Cmd
+				if m.state == signUpView {
+					user, err := signUp(m.inputs[0].Value(), m.inputs[1].Value())
+					if err != nil {
+						m.error = err.Error()
+						return m, nil
+					}
+					cmd = authorizationCmd(user)
+				} else {
+					user, err := login(m.inputs[0].Value(), m.inputs[1].Value())
+					if err != nil {
+						m.error = err.Error()
+						return m, nil
+					}
+					cmd = authorizationCmd(user)
+				}
+				return m, cmd
 			}
 
 			// Cycle indexes
@@ -131,7 +157,7 @@ func (m *FormModel) updateInputs(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, len(m.inputs))
 
 	// Only text inputs with Focus() set will respond, so it's safe to simply
-	// update all of them here without any further logic.
+	// update all of them here without any further fmtic.
 	for i := range m.inputs {
 		m.inputs[i], cmds[i] = m.inputs[i].Update(msg)
 	}
@@ -174,4 +200,94 @@ func validateInputs(inputs []textinput.Model) bool {
 
 func validatePassword(inputs []textinput.Model) bool {
 	return inputs[1].Value() == inputs[2].Value()
+}
+
+func signUp(username, password string) (http.User, error) {
+	type Req struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	req := Req{
+		Username: username,
+		Password: password,
+	}
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return http.User{}, err
+	}
+
+	reqBody := bytes.NewReader(data)
+	res, err := httpClient.Post(http.BASE_URL+"/users", reqBody)
+	if err != nil {
+		return http.User{}, err
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+
+	var user http.User
+	var error http.Error
+
+	if res.StatusCode >= 400 {
+		err = json.Unmarshal(body, &error)
+		if err != nil {
+			return http.User{}, err
+		}
+		return http.User{}, fmt.Errorf(error.Error)
+	}
+
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		return http.User{}, err
+	}
+	return user, nil
+}
+
+func login(username, password string) (http.User, error) {
+	type Req struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	fmt.Println(username, password)
+
+	req := Req{
+		Username: username,
+		Password: password,
+	}
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return http.User{}, err
+	}
+
+	reqBody := bytes.NewReader(data)
+	res, err := httpClient.Post(http.BASE_URL+"/login", reqBody)
+	if err != nil {
+		return http.User{}, err
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+
+	var user http.User
+	var error http.Error
+	if res.StatusCode >= 400 {
+		err = json.Unmarshal(body, &error)
+		if err != nil {
+			return http.User{}, err
+		}
+		return http.User{}, fmt.Errorf(error.Error)
+	}
+
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		return http.User{}, err
+	}
+	return user, nil
+}
+
+func authorizationCmd(user http.User) tea.Cmd {
+	return func() tea.Msg {
+		return authorizationMsg{user: user}
+	}
 }

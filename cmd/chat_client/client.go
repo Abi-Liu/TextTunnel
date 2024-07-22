@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		token = ""
 	}
-	model := ui.NewMainModel(token)
+	model := ui.NewMainModel(token, cm)
 	program := tea.NewProgram(model, tea.WithAltScreen())
 	if _, err := program.Run(); err != nil {
 		log.Fatal(err)

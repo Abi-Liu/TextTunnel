@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -51,6 +52,7 @@ func (c *Config) CreateUser(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	req := &Req{}
 	err := decoder.Decode(req)
+	log.Print(req)
 	if err != nil {
 		RespondWithError(w, 500, fmt.Sprintf("Could not decode parameters: %s", err))
 		return

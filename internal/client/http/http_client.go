@@ -1,14 +1,30 @@
-package client
+package http
 
 import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 )
+
+const BASE_URL = "http://localhost:8080"
 
 type HttpClient struct {
 	Client    *http.Client
 	AuthToken string
+}
+
+type User struct {
+	ID        uuid.UUID `json:"id"`
+	Username  string    `json:"username"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	ApiKey    string    `json:"api_key"`
+}
+
+type Error struct {
+	Error string `json:"error"`
 }
 
 func CreateHttpClient() *HttpClient {
@@ -16,6 +32,7 @@ func CreateHttpClient() *HttpClient {
 		Client: &http.Client{
 			Timeout: 20 * time.Second,
 		},
+		AuthToken: "",
 	}
 	return client
 }
