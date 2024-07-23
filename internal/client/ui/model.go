@@ -74,6 +74,7 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		m.User = msg.user
 		// save the authorization token
 		m.Cm.SaveToken(msg.user.ApiKey)
+		httpClient.SetAuthToken(msg.user.ApiKey)
 
 		// switch the state to the room list view
 		m.State = roomListView
