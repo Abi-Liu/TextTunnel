@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/Abi-Liu/TextTunnel/internal/database"
@@ -41,7 +42,7 @@ func (c *Config) CreateRoom(w http.ResponseWriter, r *http.Request, user databas
 
 func (c *Config) GetAllRooms(w http.ResponseWriter, r *http.Request, _ database.User) {
 	rooms, err := c.DB.FindAllRooms(r.Context())
-
+	log.Print("Query for getting all rooms")
 	if err != nil {
 		RespondWithError(w, 500, "Error occured when retrieving rooms: "+err.Error())
 		return

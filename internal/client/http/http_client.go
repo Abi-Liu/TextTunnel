@@ -13,12 +13,12 @@ type HttpClient struct {
 	AuthToken string
 }
 
-func CreateHttpClient() *HttpClient {
+func CreateHttpClient(token string) *HttpClient {
 	client := &HttpClient{
 		Client: &http.Client{
 			Timeout: 20 * time.Second,
 		},
-		AuthToken: "",
+		AuthToken: token,
 	}
 	return client
 }

@@ -26,9 +26,8 @@ type MainModel struct {
 	UnauthorizedModel tea.Model
 	LoginModel        tea.Model
 	SignUpModel       tea.Model
+	RoomListModel     tea.Model
 }
-
-var httpClient = http.CreateHttpClient()
 
 type navigateToPageMsg struct {
 	state sessionState
@@ -38,15 +37,19 @@ type authorizationMsg struct {
 	user http.User
 }
 
+var httpClient *http.HttpClient
+
 func NewMainModel(token string, cm auth.ConfigManager) MainModel {
 	state := roomListView
 	if token == "" {
 		state = unauthorizedView
 	}
+	httpClient = http.CreateHttpClient(token)
 
 	unauthorized := NewUnauthorizedModel()
 	login := NewFormModel(loginView)
 	signUp := NewFormModel(signUpView)
+	roomList := newRoomListModel()
 
 	return MainModel{
 		State:             state,
@@ -55,6 +58,7 @@ func NewMainModel(token string, cm auth.ConfigManager) MainModel {
 		LoginModel:        login,
 		UnauthorizedModel: unauthorized,
 		SignUpModel:       signUp,
+		RoomListModel:     roomList,
 	}
 }
 
@@ -68,6 +72,9 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.Height = msg.Height
 		m.Width = msg.Width
+		if roomList, ok := m.RoomListModel.(*roomListModel); ok {
+			roomList.initList(msg.Width, msg.Height)
+		}
 	case navigateToPageMsg:
 		m.State = msg.state
 	case authorizationMsg:
@@ -96,6 +103,10 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				signup, command := m.SignUpModel.Update(message)
 				m.SignUpModel = signup
 				cmd = command
+			case roomListView:
+				roomList, command := m.RoomListModel.Update(message)
+				m.RoomListModel = roomList
+				cmd = command
 			}
 		}
 	}
@@ -116,6 +127,7 @@ func (m MainModel) View() string {
 		return m.SignUpModel.View()
 	case roomListView:
 		// show list of rooms available
+		return m.RoomListModel.View()
 	case roomView:
 		// show the room view with chat etc.
 	}

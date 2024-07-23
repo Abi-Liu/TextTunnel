@@ -36,6 +36,10 @@ type roomListModel struct {
 	focusIndex int
 }
 
+func newRoomListModel() *roomListModel {
+	return &roomListModel{}
+}
+
 // fetch the rooms and populate the list
 func (m *roomListModel) initList(width, height int) {
 	rooms, err := httpClient.FetchRooms()
@@ -64,9 +68,11 @@ func (m roomListModel) Init() tea.Cmd {
 }
 
 func (m roomListModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
-	return m, nil
+	model, cmd := m.list.Update(message)
+	m.list = model
+	return m, cmd
 }
 
 func (m roomListModel) View() string {
-	return ""
+	return m.list.View()
 }
