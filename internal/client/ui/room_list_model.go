@@ -37,7 +37,10 @@ type roomListModel struct {
 }
 
 func newRoomListModel() *roomListModel {
-	return &roomListModel{}
+	list := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	return &roomListModel{
+		list: list,
+	}
 }
 
 // fetch the rooms and populate the list
@@ -47,9 +50,11 @@ func (m *roomListModel) initList(width, height int) {
 		m.err = err
 	}
 	m.list = list.New([]list.Item{}, list.NewDefaultDelegate(), width, height)
+	newList := make([]list.Item, len(rooms))
 	for i, r := range rooms {
-		m.list.InsertItem(i, httpRoomToRoom(r))
+		newList[i] = httpRoomToRoom(r)
 	}
+	m.list.SetItems(newList)
 }
 
 func httpRoomToRoom(r http.Room) room {
@@ -68,11 +73,32 @@ func (m roomListModel) Init() tea.Cmd {
 }
 
 func (m roomListModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
-	model, cmd := m.list.Update(message)
-	m.list = model
+	var cmd tea.Cmd
+	switch msg := message.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "enter":
+			m.list.Select(1)
+		case "up", "k":
+			if m.focusIndex > 0 {
+				m.focusIndex--
+				m.list.Select(m.focusIndex)
+			}
+		case "down", "j":
+			if m.focusIndex < len(m.list.Items())-1 {
+				m.focusIndex++
+				m.list.Select(m.focusIndex)
+			}
+		default:
+			m.list, cmd = m.list.Update(msg)
+		}
+	}
 	return m, cmd
 }
 
 func (m roomListModel) View() string {
+	if m.err != nil {
+		return m.err.Error()
+	}
 	return m.list.View()
 }

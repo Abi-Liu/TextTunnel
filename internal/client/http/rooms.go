@@ -3,7 +3,6 @@ package http
 import (
 	"encoding/json"
 	"io"
-	"log"
 )
 
 func (c HttpClient) FetchRooms() ([]Room, error) {
@@ -22,7 +21,6 @@ func (c HttpClient) FetchRooms() ([]Room, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Print(rooms)
 
 	return rooms, nil
 }
