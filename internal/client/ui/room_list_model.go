@@ -78,7 +78,7 @@ func (m roomListModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "enter":
-			m.list.Select(1)
+			// handle navigating to the correct room.
 		case "up", "k":
 			if m.focusIndex > 0 {
 				m.focusIndex--

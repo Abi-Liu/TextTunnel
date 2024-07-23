@@ -6,12 +6,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func navigateToPage(index int) tea.Cmd {
+func navigateToPage(state sessionState) tea.Cmd {
 	return func() tea.Msg {
-		state := loginView
-		if index == 1 {
-			state = signUpView
-		}
 		return navigateToPageMsg{state: state}
 	}
 }
@@ -43,7 +39,11 @@ func (m UnauthorizedModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "enter":
 			// create a new command to route to the appropriate page
-			cmd = navigateToPage(m.focusIndex)
+			if m.focusIndex == 0 {
+				cmd = navigateToPage(loginView)
+			} else {
+				cmd = navigateToPage(signUpView)
+			}
 		}
 	}
 	return m, cmd

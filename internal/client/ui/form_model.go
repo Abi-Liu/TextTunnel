@@ -78,6 +78,7 @@ func (m FormModel) Init() tea.Cmd {
 }
 
 func (m FormModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
 	switch msg := message.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -146,10 +147,14 @@ func (m FormModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, tea.Batch(cmds...)
+
+		case "esc":
+			cmd = navigateToPage(unauthorizedView)
+			return m, cmd
 		}
 	}
 
-	cmd := m.updateInputs(message)
+	cmd = m.updateInputs(message)
 	return m, cmd
 }
 
