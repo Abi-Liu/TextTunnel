@@ -36,6 +36,10 @@ type roomListModel struct {
 	focusIndex int
 }
 
+type populateListMsg struct {
+	list []list.Item
+}
+
 func newRoomListModel() *roomListModel {
 	list := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 	return &roomListModel{
@@ -45,16 +49,16 @@ func newRoomListModel() *roomListModel {
 
 // fetch the rooms and populate the list
 func (m *roomListModel) initList(width, height int) {
-	rooms, err := httpClient.FetchRooms()
-	if err != nil {
-		m.err = err
-	}
+	// rooms, err := httpClient.FetchRooms()
+	// if err != nil {
+	// 	m.err = err
+	// }
 	m.list = list.New([]list.Item{}, list.NewDefaultDelegate(), width, height)
-	newList := make([]list.Item, len(rooms))
-	for i, r := range rooms {
-		newList[i] = httpRoomToRoom(r)
-	}
-	m.list.SetItems(newList)
+	// newList := make([]list.Item, len(rooms))
+	// for i, r := range rooms {
+	// 	newList[i] = httpRoomToRoom(r)
+	// }
+	// m.list.SetItems(newList)
 }
 
 func httpRoomToRoom(r http.Room) room {
@@ -69,7 +73,18 @@ func httpRoomToRoom(r http.Room) room {
 }
 
 func (m roomListModel) Init() tea.Cmd {
-	return nil
+	return func() tea.Msg {
+		rooms, err := httpClient.FetchRooms()
+		if err != nil {
+			m.err = err
+			return nil
+		}
+		list := make([]list.Item, len(rooms))
+		for i, r := range rooms {
+			list[i] = httpRoomToRoom(r)
+		}
+		return populateListMsg{list: list}
+	}
 }
 
 func (m roomListModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {

@@ -23,27 +23,26 @@ var (
 	cursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
 )
 
-var focusedButton string
-var blurredButton string
-
 type FormModel struct {
-	focusIndex int
-	inputs     []textinput.Model
-	cursorMode cursor.Mode
-	error      string
-	state      sessionState
+	focusIndex    int
+	inputs        []textinput.Model
+	cursorMode    cursor.Mode
+	error         string
+	state         sessionState
+	focusedButton string
+	blurredButton string
 }
 
 func NewFormModel(state sessionState) FormModel {
 	m := FormModel{state: state}
 	if state == loginView {
 		m.inputs = make([]textinput.Model, 2)
-		focusedButton = focusedStyle.Render("[ Login ]")
-		blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Login"))
+		m.focusedButton = focusedStyle.Render("[ Login ]")
+		m.blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Login"))
 	} else {
 		m.inputs = make([]textinput.Model, 3)
-		focusedButton = focusedStyle.Render("[ Sign up ]")
-		blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Sign up"))
+		m.focusedButton = focusedStyle.Render("[ Sign up ]")
+		m.blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Sign up"))
 	}
 
 	for i := range m.inputs {
@@ -180,9 +179,9 @@ func (m FormModel) View() string {
 		}
 	}
 
-	button := &blurredButton
+	button := &m.blurredButton
 	if m.focusIndex == len(m.inputs) {
-		button = &focusedButton
+		button = &m.focusedButton
 	}
 	fmt.Fprintf(&b, "\n\n%s\n\n", *button)
 
@@ -204,7 +203,7 @@ func validateInputs(inputs []textinput.Model) bool {
 }
 
 func validatePassword(inputs []textinput.Model) bool {
-	return inputs[1].Value() == inputs[2].Value()
+	return inputs[1].Value() == inputs[2].Value() && len(inputs[1].Value()) > 0
 }
 
 func signUp(username, password string) (http.User, error) {

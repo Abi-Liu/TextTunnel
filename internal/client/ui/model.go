@@ -37,13 +37,15 @@ type authorizationMsg struct {
 	user http.User
 }
 
+type validAuthTokenOnStartMsg struct {
+	user http.User
+}
+
+type navigateToRoomsListMsg struct{}
+
 var httpClient *http.HttpClient
 
 func NewMainModel(token string, cm auth.ConfigManager) MainModel {
-	state := roomListView
-	if token == "" {
-		state = unauthorizedView
-	}
 	httpClient = http.CreateHttpClient(token)
 
 	unauthorized := NewUnauthorizedModel()
@@ -52,7 +54,7 @@ func NewMainModel(token string, cm auth.ConfigManager) MainModel {
 	roomList := newRoomListModel()
 
 	return MainModel{
-		State:             state,
+		State:             unauthorizedView,
 		Cm:                cm,
 		AuthToken:         token,
 		LoginModel:        login,
@@ -63,7 +65,20 @@ func NewMainModel(token string, cm auth.ConfigManager) MainModel {
 }
 
 func (m MainModel) Init() tea.Cmd {
-	return nil
+	var cmd tea.Cmd
+	if m.AuthToken != "" {
+		user, err := httpClient.GetUserByAuthToken()
+		if err != nil {
+			panic("Corrupted auth token!")
+		}
+
+		cmd = func() tea.Msg {
+			return validAuthTokenOnStartMsg{
+				user: user,
+			}
+		}
+	}
+	return cmd
 }
 
 func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
@@ -77,6 +92,10 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case navigateToPageMsg:
 		m.State = msg.state
+	case validAuthTokenOnStartMsg:
+		m.State = roomListView
+		m.User = msg.user
+		cmd = m.RoomListModel.Init()
 	case authorizationMsg:
 		m.User = msg.user
 		// save the authorization token
@@ -85,6 +104,12 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 
 		// switch the state to the room list view
 		m.State = roomListView
+		// initialize the list
+		cmd = m.RoomListModel.Init()
+	case populateListMsg:
+		model := m.RoomListModel.(*roomListModel)
+		model.list.SetItems(msg.list)
+		m.RoomListModel = model
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
