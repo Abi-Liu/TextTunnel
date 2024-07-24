@@ -27,6 +27,7 @@ type MainModel struct {
 	LoginModel        tea.Model
 	SignUpModel       tea.Model
 	RoomListModel     tea.Model
+	RoomModel         tea.Model
 }
 
 type navigateToPageMsg struct {
@@ -52,6 +53,7 @@ func NewMainModel(token string, cm auth.ConfigManager) MainModel {
 	login := NewFormModel(loginView)
 	signUp := NewFormModel(signUpView)
 	roomList := newRoomListModel()
+	room := newRoomModel(30, 5)
 
 	return MainModel{
 		State:             unauthorizedView,
@@ -61,6 +63,7 @@ func NewMainModel(token string, cm auth.ConfigManager) MainModel {
 		UnauthorizedModel: unauthorized,
 		SignUpModel:       signUp,
 		RoomListModel:     roomList,
+		RoomModel:         room,
 	}
 }
 
@@ -90,6 +93,7 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		if roomList, ok := m.RoomListModel.(*roomListModel); ok {
 			roomList.initList(msg.Width, msg.Height)
 		}
+		m.RoomModel = newRoomModel(msg.Width, msg.Height)
 	case navigateToPageMsg:
 		m.State = msg.state
 	case validAuthTokenOnStartMsg:
@@ -110,6 +114,12 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		model := m.RoomListModel.(*roomListModel)
 		model.list.SetItems(msg.list)
 		m.RoomListModel = model
+	case navigateToRoomMsg:
+		model := m.RoomModel.(roomModel)
+		model.name = msg.name
+		model.id = msg.id
+		m.RoomModel = model
+		m.State = roomView
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
@@ -132,6 +142,8 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				roomList, command := m.RoomListModel.Update(message)
 				m.RoomListModel = roomList
 				cmd = command
+			case roomView:
+				m.RoomModel, cmd = m.RoomModel.Update(message)
 			}
 		}
 	}
@@ -155,6 +167,7 @@ func (m MainModel) View() string {
 		return m.RoomListModel.View()
 	case roomView:
 		// show the room view with chat etc.
+		return m.RoomModel.View()
 	}
 	return ""
 }

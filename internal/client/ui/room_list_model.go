@@ -9,6 +9,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type navigateToRoomMsg struct {
+	id   uuid.UUID
+	name string
+}
+
 type room struct {
 	ID        uuid.UUID
 	Name      string
@@ -52,6 +57,15 @@ func (m *roomListModel) initList(width, height int) {
 	m.list = list.New([]list.Item{}, list.NewDefaultDelegate(), width, height)
 }
 
+func navigateToRoom(id uuid.UUID, name string) tea.Cmd {
+	return func() tea.Msg {
+		return navigateToRoomMsg{
+			id:   id,
+			name: name,
+		}
+	}
+}
+
 func httpRoomToRoom(r http.Room) room {
 	return room{
 		ID:        r.ID,
@@ -85,6 +99,8 @@ func (m roomListModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "enter":
 			// handle navigating to the correct room.
+			room := m.list.Items()[m.focusIndex].(room)
+			cmd = navigateToRoom(room.ID, room.Name)
 		case "up", "k":
 			if m.focusIndex > 0 {
 				m.focusIndex--

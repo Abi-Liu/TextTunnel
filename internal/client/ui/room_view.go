@@ -22,6 +22,8 @@ type message struct {
 }
 
 type roomModel struct {
+	id          uuid.UUID
+	name        string
 	viewport    viewport.Model
 	messages    []string
 	textarea    textarea.Model
