@@ -49,16 +49,7 @@ func newRoomListModel() *roomListModel {
 
 // fetch the rooms and populate the list
 func (m *roomListModel) initList(width, height int) {
-	// rooms, err := httpClient.FetchRooms()
-	// if err != nil {
-	// 	m.err = err
-	// }
 	m.list = list.New([]list.Item{}, list.NewDefaultDelegate(), width, height)
-	// newList := make([]list.Item, len(rooms))
-	// for i, r := range rooms {
-	// 	newList[i] = httpRoomToRoom(r)
-	// }
-	// m.list.SetItems(newList)
 }
 
 func httpRoomToRoom(r http.Room) room {
