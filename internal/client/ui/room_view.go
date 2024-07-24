@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -14,20 +15,24 @@ import (
 )
 
 type message struct {
-	Id        uuid.UUID `json:"id"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	SenderId  uuid.UUID `json:"sender_id"`
-	RoomId    uuid.UUID `json:"room_id"`
+	Id         uuid.UUID `json:"id"`
+	Content    string    `json:"content"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	SenderId   uuid.UUID `json:"sender_id"`
+	SenderName string    `json:"sender_name"`
+	RoomId     uuid.UUID `json:"room_id"`
 }
 
 type roomModel struct {
 	id          uuid.UUID
 	name        string
 	conn        *websocket.Conn
+	receiveChan chan message
+	ctx         context.Context
+	cancel      context.CancelFunc
 	viewport    viewport.Model
-	messages    []string
+	messages    []message
 	textarea    textarea.Model
 	senderStyle lipgloss.Style
 	err         error
@@ -52,6 +57,7 @@ func newRoomModel(width, height int) roomModel {
 		messages:    []string{},
 		viewport:    vp,
 		senderStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
+		receiveChan: make(chan message, 1024),
 		err:         nil,
 	}
 }

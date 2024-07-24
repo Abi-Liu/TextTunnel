@@ -123,7 +123,10 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case wsConnectionMsg:
 		model := m.RoomModel.(roomModel)
 		model.conn = msg.conn
+		model.ctx = msg.ctx
+		model.cancel = msg.cancel
 		m.RoomModel = model
+		cmd = read(msg.conn, msg.ctx)
 	case connectionErrorMsg:
 		model := m.RoomModel.(roomModel)
 		model.err = msg.err
