@@ -45,7 +45,7 @@ func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (M
 }
 
 const getMessagesByRoom = `-- name: GetMessagesByRoom :many
-SELECT messages.id, messages.content, messages.created_at, messages.updated_at, users.username, messages.room_id, messages.sender_id 
+SELECT messages.id, messages.content, messages.created_at, messages.updated_at, messages.sender_id, messages.room_id, users.username 
 FROM messages 
 JOIN users ON users.id = messages.sender_id
 WHERE messages.room_id = $1
@@ -56,9 +56,9 @@ type GetMessagesByRoomRow struct {
 	Content   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Username  string
-	RoomID    uuid.UUID
 	SenderID  uuid.UUID
+	RoomID    uuid.UUID
+	Username  string
 }
 
 func (q *Queries) GetMessagesByRoom(ctx context.Context, roomID uuid.UUID) ([]GetMessagesByRoomRow, error) {
@@ -75,9 +75,9 @@ func (q *Queries) GetMessagesByRoom(ctx context.Context, roomID uuid.UUID) ([]Ge
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Username,
-			&i.RoomID,
 			&i.SenderID,
+			&i.RoomID,
+			&i.Username,
 		); err != nil {
 			return nil, err
 		}
@@ -132,7 +132,7 @@ func (q *Queries) GetMessagesByRoomAndUser(ctx context.Context, arg GetMessagesB
 }
 
 const getMessagesByUser = `-- name: GetMessagesByUser :many
-SELECT messages.id, messages.content, messages.created_at, messages.updated_at, users.username, messages.room_id, messages.sender_id 
+SELECT messages.id, messages.content, messages.created_at, messages.updated_at, messages.sender_id, messages.room_id, users.username
 FROM messages
 JOIN users ON users.id = messages.sender_id
 WHERE messages.sender_id = $1
@@ -143,9 +143,9 @@ type GetMessagesByUserRow struct {
 	Content   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Username  string
-	RoomID    uuid.UUID
 	SenderID  uuid.UUID
+	RoomID    uuid.UUID
+	Username  string
 }
 
 func (q *Queries) GetMessagesByUser(ctx context.Context, senderID uuid.UUID) ([]GetMessagesByUserRow, error) {
@@ -162,9 +162,9 @@ func (q *Queries) GetMessagesByUser(ctx context.Context, senderID uuid.UUID) ([]
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Username,
-			&i.RoomID,
 			&i.SenderID,
+			&i.RoomID,
+			&i.Username,
 		); err != nil {
 			return nil, err
 		}
@@ -180,8 +180,7 @@ func (q *Queries) GetMessagesByUser(ctx context.Context, senderID uuid.UUID) ([]
 }
 
 const getPreviousRoomMessages = `-- name: GetPreviousRoomMessages :many
-SELECT messages.id, messages.content, messages.created_at, messages.updated_at, users.username, messages.room_id, messages.sender_id 
-FROM messages 
+SELECT messages.id, messages.content, messages.created_at, messages.updated_at, messages.sender_id, messages.room_id, users.username FROM messages 
 JOIN users ON users.id = messages.sender_id
 WHERE messages.room_id = $1 
 ORDER BY messages.created_at ASC LIMIT $2
@@ -197,9 +196,9 @@ type GetPreviousRoomMessagesRow struct {
 	Content   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Username  string
-	RoomID    uuid.UUID
 	SenderID  uuid.UUID
+	RoomID    uuid.UUID
+	Username  string
 }
 
 func (q *Queries) GetPreviousRoomMessages(ctx context.Context, arg GetPreviousRoomMessagesParams) ([]GetPreviousRoomMessagesRow, error) {
@@ -216,9 +215,9 @@ func (q *Queries) GetPreviousRoomMessages(ctx context.Context, arg GetPreviousRo
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Username,
-			&i.RoomID,
 			&i.SenderID,
+			&i.RoomID,
+			&i.Username,
 		); err != nil {
 			return nil, err
 		}
