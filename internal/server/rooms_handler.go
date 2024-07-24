@@ -48,5 +48,6 @@ func (c *Config) GetAllRooms(w http.ResponseWriter, r *http.Request, _ database.
 		return
 	}
 
+	log.Print("succcess, sending back rooms")
 	RespondWithJson(w, 200, models.DatabaseRoomsToRooms(rooms))
 }

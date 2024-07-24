@@ -81,3 +81,7 @@ func (c *Config) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	RespondWithJson(w, http.StatusCreated, models.DatabaseUserToUser(user))
 }
+
+func (c *Config) GetUser(w http.ResponseWriter, r *http.Request, user database.User) {
+	RespondWithJson(w, 200, models.DatabaseUserToUser(user))
+}
