@@ -4,14 +4,23 @@ VALUES ($1, $2, timezone('utc', NOW()), timezone('utc', NOW()), $3, $4)
 RETURNING *;
 
 -- name: GetMessagesByUser :many
-SELECT * from messages
-WHERE sender_id = $1;
+SELECT messages.id, messages.content, messages.created_at, messages.updated_at, users.username, messages.room_id, messages.sender_id 
+FROM messages
+JOIN users ON users.id = messages.sender_id
+WHERE messages.sender_id = $1;
 
 -- name: GetMessagesByRoom :many
-SELECT * FROM messages WHERE room_id = $1;
+SELECT messages.id, messages.content, messages.created_at, messages.updated_at, users.username, messages.room_id, messages.sender_id 
+FROM messages 
+JOIN users ON users.id = messages.sender_id
+WHERE messages.room_id = $1;
 
 -- name: GetMessagesByRoomAndUser :many
 SELECT * FROM messages WHERE room_id = $1 AND sender_id = $2;
 
 -- name: GetPreviousRoomMessages :many
-SELECT * FROM messages WHERE room_id = $1 ORDER BY created_at ASC LIMIT $2;
+SELECT messages.id, messages.content, messages.created_at, messages.updated_at, users.username, messages.room_id, messages.sender_id 
+FROM messages 
+JOIN users ON users.id = messages.sender_id
+WHERE messages.room_id = $1 
+ORDER BY messages.created_at ASC LIMIT $2;

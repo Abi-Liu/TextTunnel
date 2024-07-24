@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -44,25 +45,39 @@ func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (M
 }
 
 const getMessagesByRoom = `-- name: GetMessagesByRoom :many
-SELECT id, content, created_at, updated_at, sender_id, room_id FROM messages WHERE room_id = $1
+SELECT messages.id, messages.content, messages.created_at, messages.updated_at, users.username, messages.room_id, messages.sender_id 
+FROM messages 
+JOIN users ON users.id = messages.sender_id
+WHERE messages.room_id = $1
 `
 
-func (q *Queries) GetMessagesByRoom(ctx context.Context, roomID uuid.UUID) ([]Message, error) {
+type GetMessagesByRoomRow struct {
+	ID        uuid.UUID
+	Content   string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Username  string
+	RoomID    uuid.UUID
+	SenderID  uuid.UUID
+}
+
+func (q *Queries) GetMessagesByRoom(ctx context.Context, roomID uuid.UUID) ([]GetMessagesByRoomRow, error) {
 	rows, err := q.db.QueryContext(ctx, getMessagesByRoom, roomID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Message
+	var items []GetMessagesByRoomRow
 	for rows.Next() {
-		var i Message
+		var i GetMessagesByRoomRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.SenderID,
+			&i.Username,
 			&i.RoomID,
+			&i.SenderID,
 		); err != nil {
 			return nil, err
 		}
@@ -117,26 +132,39 @@ func (q *Queries) GetMessagesByRoomAndUser(ctx context.Context, arg GetMessagesB
 }
 
 const getMessagesByUser = `-- name: GetMessagesByUser :many
-SELECT id, content, created_at, updated_at, sender_id, room_id from messages
-WHERE sender_id = $1
+SELECT messages.id, messages.content, messages.created_at, messages.updated_at, users.username, messages.room_id, messages.sender_id 
+FROM messages
+JOIN users ON users.id = messages.sender_id
+WHERE messages.sender_id = $1
 `
 
-func (q *Queries) GetMessagesByUser(ctx context.Context, senderID uuid.UUID) ([]Message, error) {
+type GetMessagesByUserRow struct {
+	ID        uuid.UUID
+	Content   string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Username  string
+	RoomID    uuid.UUID
+	SenderID  uuid.UUID
+}
+
+func (q *Queries) GetMessagesByUser(ctx context.Context, senderID uuid.UUID) ([]GetMessagesByUserRow, error) {
 	rows, err := q.db.QueryContext(ctx, getMessagesByUser, senderID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Message
+	var items []GetMessagesByUserRow
 	for rows.Next() {
-		var i Message
+		var i GetMessagesByUserRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.SenderID,
+			&i.Username,
 			&i.RoomID,
+			&i.SenderID,
 		); err != nil {
 			return nil, err
 		}
@@ -152,7 +180,11 @@ func (q *Queries) GetMessagesByUser(ctx context.Context, senderID uuid.UUID) ([]
 }
 
 const getPreviousRoomMessages = `-- name: GetPreviousRoomMessages :many
-SELECT id, content, created_at, updated_at, sender_id, room_id FROM messages WHERE room_id = $1 ORDER BY created_at ASC LIMIT $2
+SELECT messages.id, messages.content, messages.created_at, messages.updated_at, users.username, messages.room_id, messages.sender_id 
+FROM messages 
+JOIN users ON users.id = messages.sender_id
+WHERE messages.room_id = $1 
+ORDER BY messages.created_at ASC LIMIT $2
 `
 
 type GetPreviousRoomMessagesParams struct {
@@ -160,22 +192,33 @@ type GetPreviousRoomMessagesParams struct {
 	Limit  int32
 }
 
-func (q *Queries) GetPreviousRoomMessages(ctx context.Context, arg GetPreviousRoomMessagesParams) ([]Message, error) {
+type GetPreviousRoomMessagesRow struct {
+	ID        uuid.UUID
+	Content   string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Username  string
+	RoomID    uuid.UUID
+	SenderID  uuid.UUID
+}
+
+func (q *Queries) GetPreviousRoomMessages(ctx context.Context, arg GetPreviousRoomMessagesParams) ([]GetPreviousRoomMessagesRow, error) {
 	rows, err := q.db.QueryContext(ctx, getPreviousRoomMessages, arg.RoomID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Message
+	var items []GetPreviousRoomMessagesRow
 	for rows.Next() {
-		var i Message
+		var i GetPreviousRoomMessagesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Content,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.SenderID,
+			&i.Username,
 			&i.RoomID,
+			&i.SenderID,
 		); err != nil {
 			return nil, err
 		}
