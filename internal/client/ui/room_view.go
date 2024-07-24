@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/google/uuid"
+	"nhooyr.io/websocket"
 )
 
 type message struct {
@@ -24,6 +25,7 @@ type message struct {
 type roomModel struct {
 	id          uuid.UUID
 	name        string
+	conn        *websocket.Conn
 	viewport    viewport.Model
 	messages    []string
 	textarea    textarea.Model
@@ -56,7 +58,7 @@ func newRoomModel(width, height int) roomModel {
 
 func (m roomModel) Init() tea.Cmd {
 	// here we should establish ws connection and other room specific info
-	return textarea.Blink
+	return tea.Batch(textarea.Blink, connectToRoom(m.id))
 }
 
 func (m roomModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

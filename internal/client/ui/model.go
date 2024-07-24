@@ -120,6 +120,14 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		model.id = msg.id
 		m.RoomModel = model
 		m.State = roomView
+	case wsConnectionMsg:
+		model := m.RoomModel.(roomModel)
+		model.conn = msg.conn
+		m.RoomModel = model
+	case connectionErrorMsg:
+		model := m.RoomModel.(roomModel)
+		model.err = msg.err
+		m.RoomModel = model
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
