@@ -100,7 +100,6 @@ func (m roomModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m roomModel) formatMessages(msg message) string {
-	panic(fmt.Sprintf("SenderId: %s\nUserID:%s", msg.SenderId, m.user.ID))
 	if msg.SenderId == m.user.ID {
 		return fmt.Sprintf("%s %s: %s", msg.CreatedAt, m.senderStyle.Render("You"), msg.Content)
 	}
