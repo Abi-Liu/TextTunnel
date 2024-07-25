@@ -30,16 +30,18 @@ type Message struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	SenderId  uuid.UUID `json:"sender_id"`
+	Username  string    `json:"username"`
 	RoomId    uuid.UUID `json:"room_id"`
 }
 
-func databaseMessageToMessage(message database.Message) Message {
+func databaseMessageToMessage(message database.Message, username string) Message {
 	return Message{
 		Id:        message.ID,
 		Content:   message.Content,
 		CreatedAt: message.CreatedAt,
 		UpdatedAt: message.UpdatedAt,
 		SenderId:  message.SenderID,
+		Username:  username,
 		RoomId:    message.RoomID,
 	}
 }
@@ -70,18 +72,23 @@ func (c *Client) Read() {
 			log.Printf("Context done")
 			return
 		default:
-			var v interface{}
-			err := wsjson.Read(c.Ctx, c.Conn, &v)
+			type Req struct {
+				SenderId uuid.UUID `json:"sender_id"`
+				RoomId   uuid.UUID `json:"room_id"`
+				Content  string    `json:"content"`
+			}
+			req := &Req{}
+			err := wsjson.Read(c.Ctx, c.Conn, req)
 			if err != nil {
 				if websocket.CloseStatus(err) != websocket.StatusNormalClosure {
-					log.Printf("Error reading from client: %s\n%v", err, v)
+					log.Printf("Error reading from client: %s\n%v", err, req)
 				}
 				return
 			}
 
 			dbMsg, err := c.DB.CreateMessage(c.Ctx, database.CreateMessageParams{
 				ID:       uuid.New(),
-				Content:  v.(string),
+				Content:  req.Content,
 				SenderID: c.ID,
 				RoomID:   c.Room.ID,
 			})
@@ -90,7 +97,7 @@ func (c *Client) Read() {
 				return
 			}
 
-			msg := databaseMessageToMessage(dbMsg)
+			msg := databaseMessageToMessage(dbMsg, c.Username)
 			c.Room.Broadcast <- &msg
 		}
 	}

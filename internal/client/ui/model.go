@@ -99,12 +99,16 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case validAuthTokenOnStartMsg:
 		m.State = roomListView
 		m.User = msg.user
+		room := m.RoomModel.(roomModel)
+		room.user = m.User
 		cmd = m.RoomListModel.Init()
 	case authorizationMsg:
 		m.User = msg.user
 		// save the authorization token
 		m.Cm.SaveToken(msg.user.ApiKey)
 		httpClient.SetAuthToken(msg.user.ApiKey)
+		room := m.RoomModel.(roomModel)
+		room.user = m.User
 
 		// switch the state to the room list view
 		m.State = roomListView
@@ -120,17 +124,24 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		model.id = msg.id
 		m.RoomModel = model
 		m.State = roomView
+		cmd = m.RoomModel.Init()
 	case wsConnectionMsg:
 		model := m.RoomModel.(roomModel)
 		model.conn = msg.conn
 		model.ctx = msg.ctx
 		model.cancel = msg.cancel
 		m.RoomModel = model
-		cmd = read(msg.conn, msg.ctx)
+		cmds := []tea.Cmd{}
+		cmds = append(cmds, read(msg.conn, msg.ctx))
+		return m, tea.Batch(cmds...)
 	case connectionErrorMsg:
 		model := m.RoomModel.(roomModel)
 		model.err = msg.err
 		m.RoomModel = model
+	case receiveMsg:
+		model := m.RoomModel.(roomModel)
+		model.messages = append(model.messages, model.formatMessages(msg.msg))
+		cmd = read(model.conn, model.ctx)
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":

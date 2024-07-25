@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Abi-Liu/TextTunnel/internal/client/http"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -31,8 +32,9 @@ type roomModel struct {
 	receiveChan chan message
 	ctx         context.Context
 	cancel      context.CancelFunc
+	user        http.User
 	viewport    viewport.Model
-	messages    []message
+	messages    []string
 	textarea    textarea.Model
 	senderStyle lipgloss.Style
 	err         error
@@ -71,6 +73,7 @@ func (m roomModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		tiCmd tea.Cmd
 		vpCmd tea.Cmd
+		cmd   tea.Cmd
 	)
 
 	m.textarea, tiCmd = m.textarea.Update(msg)
@@ -85,14 +88,23 @@ func (m roomModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEsc:
 			return m, navigateToPage(roomListView)
 		case tea.KeyEnter:
+			// TODO: change this to write to the socket instead
 			m.messages = append(m.messages, m.senderStyle.Render("You: ")+m.textarea.Value())
 			m.viewport.SetContent(strings.Join(m.messages, "\n"))
+			cmd = write(m.conn, m.ctx, m.user.ID, m.id, m.textarea.Value())
 			m.textarea.Reset()
 			m.viewport.GotoBottom()
 		}
 	}
 
-	return m, tea.Batch(tiCmd, vpCmd)
+	return m, tea.Batch(tiCmd, vpCmd, cmd)
+}
+
+func (m roomModel) formatMessages(msg message) string {
+	if msg.SenderId == m.user.ID {
+		return fmt.Sprintf("%s %s: %s", msg.CreatedAt, m.senderStyle.Render("You"), msg.Content)
+	}
+	return fmt.Sprintf("%s %s: %s", msg.CreatedAt, m.senderStyle.Render(msg.SenderName), msg.Content)
 }
 
 func (m roomModel) View() string {

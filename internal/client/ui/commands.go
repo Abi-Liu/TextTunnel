@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -58,6 +59,12 @@ func write(conn *websocket.Conn, ctx context.Context, userId, roomId uuid.UUID, 
 			SenderId uuid.UUID `json:"sender_id"`
 			RoomId   uuid.UUID `json:"room_id"`
 			Content  string    `json:"content"`
+		}
+		if conn == nil {
+			log.Panic("CONNECTION IS NULL")
+		}
+		if ctx == nil {
+			log.Print("CONTEXT IS NILL")
 		}
 		err := wsjson.Write(ctx, conn, params{
 			SenderId: userId,
