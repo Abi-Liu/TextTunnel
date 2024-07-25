@@ -25,24 +25,24 @@ type Client struct {
 }
 
 type Message struct {
-	Id        uuid.UUID `json:"id"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	SenderId  uuid.UUID `json:"sender_id"`
-	Username  string    `json:"username"`
-	RoomId    uuid.UUID `json:"room_id"`
+	Id         uuid.UUID `json:"id"`
+	Content    string    `json:"content"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+	SenderId   uuid.UUID `json:"sender_id"`
+	SenderName string    `json:"sender_name"`
+	RoomId     uuid.UUID `json:"room_id"`
 }
 
 func databaseMessageToMessage(message database.Message, username string) Message {
 	return Message{
-		Id:        message.ID,
-		Content:   message.Content,
-		CreatedAt: message.CreatedAt,
-		UpdatedAt: message.UpdatedAt,
-		SenderId:  message.SenderID,
-		Username:  username,
-		RoomId:    message.RoomID,
+		Id:         message.ID,
+		Content:    message.Content,
+		CreatedAt:  message.CreatedAt,
+		UpdatedAt:  message.UpdatedAt,
+		SenderId:   message.SenderID,
+		SenderName: username,
+		RoomId:     message.RoomID,
 	}
 }
 
