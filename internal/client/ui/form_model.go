@@ -171,7 +171,7 @@ func (m *FormModel) updateInputs(msg tea.Msg) tea.Cmd {
 
 func (m FormModel) View() string {
 	var b strings.Builder
-
+	helpView := "\n ↑/shift+tab: navigate up • ↓/tab: navigate down • esc: back • enter: submit • ctrl+c: quit\n"
 	for i := range m.inputs {
 		b.WriteString(m.inputs[i].View())
 		if i < len(m.inputs)-1 {
@@ -189,7 +189,7 @@ func (m FormModel) View() string {
 		fmt.Fprintf(&b, "%s\n\n", m.error)
 	}
 
-	return b.String()
+	return lipgloss.JoinVertical(lipgloss.Left, b.String(), helpView)
 }
 
 func validateInputs(inputs []textinput.Model) bool {

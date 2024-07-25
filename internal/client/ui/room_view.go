@@ -37,6 +37,7 @@ type roomModel struct {
 	messages    []string
 	textarea    textarea.Model
 	senderStyle lipgloss.Style
+	dateStyle   lipgloss.Style
 	err         error
 }
 
@@ -59,6 +60,7 @@ func newRoomModel(width, height int) roomModel {
 		messages:    []string{},
 		viewport:    vp,
 		senderStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
+		dateStyle:   lipgloss.NewStyle().Foreground(lipgloss.Color("240")),
 		receiveChan: make(chan message, 1024),
 		err:         nil,
 	}
@@ -100,16 +102,26 @@ func (m roomModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m roomModel) formatMessages(msg message) string {
-	if msg.SenderId == m.user.ID {
-		return fmt.Sprintf("%s %s: %s", msg.CreatedAt, m.senderStyle.Render("You"), msg.Content)
+	date, err := time.Parse("2006-01-02 15:04:05.999999 -0700 MST", msg.CreatedAt.String())
+	if err != nil {
+		panic(err)
 	}
-	return fmt.Sprintf("%s %s: %s", msg.CreatedAt, m.senderStyle.Render(msg.SenderName), msg.Content)
+	formattedDate := date.Format("02 January 2006 15:04:05")
+	dateString := m.senderStyle.Render(formattedDate + " UTC")
+
+	if msg.SenderId == m.user.ID {
+		return fmt.Sprintf("%s %s: %s", m.dateStyle.Render(dateString), m.senderStyle.Render("You"), msg.Content)
+	}
+	return fmt.Sprintf("%s %s: %s", m.dateStyle.Render(dateString), m.senderStyle.Render(msg.SenderName), msg.Content)
 }
 
 func (m roomModel) View() string {
-	return fmt.Sprintf(
+	content := fmt.Sprintf(
 		"%s\n\n%s",
 		m.viewport.View(),
 		m.textarea.View(),
 	) + "\n\n"
+
+	formatted := lipgloss.JoinVertical(lipgloss.Left, content, "\n esc: back • enter: send • ctrl+c: quit\n")
+	return formatted
 }

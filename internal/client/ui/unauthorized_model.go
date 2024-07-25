@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 func navigateToPage(state sessionState) tea.Cmd {
@@ -66,5 +67,5 @@ func (m UnauthorizedModel) View() string {
 	}
 	s := "Welcome to TextTunnel\n\n"
 	s += fmt.Sprintf("   %s   %s   ", *login, *signup)
-	return s
+	return lipgloss.JoinVertical(lipgloss.Left, s, "\n enter: select • ctrl+c: quit\n")
 }

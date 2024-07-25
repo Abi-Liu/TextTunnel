@@ -102,7 +102,7 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		m.State = roomListView
 		m.User = msg.user
 		room := m.RoomModel.(roomModel)
-		room.user = m.User
+		room.user = msg.user
 		m.RoomModel = room
 		cmd = m.RoomListModel.Init()
 	case authorizationMsg:
@@ -111,7 +111,7 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		m.Cm.SaveToken(msg.user.ApiKey)
 		httpClient.SetAuthToken(msg.user.ApiKey)
 		room := m.RoomModel.(roomModel)
-		room.user = m.User
+		room.user = msg.user
 		m.RoomModel = room
 
 		// switch the state to the room list view
@@ -150,7 +150,7 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = read(model.conn, model.ctx)
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "ctrl+c":
 			return m, tea.Quit
 		default:
 			switch m.State {
