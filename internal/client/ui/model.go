@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"strings"
+
 	"github.com/Abi-Liu/TextTunnel/internal/client/auth"
 	"github.com/Abi-Liu/TextTunnel/internal/client/http"
 	tea "github.com/charmbracelet/bubbletea"
@@ -141,6 +143,8 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case receiveMsg:
 		model := m.RoomModel.(roomModel)
 		model.messages = append(model.messages, model.formatMessages(msg.msg))
+		model.viewport.SetContent(strings.Join(model.messages, "\n"))
+		m.RoomModel = model
 		cmd = read(model.conn, model.ctx)
 	case tea.KeyMsg:
 		switch msg.String() {

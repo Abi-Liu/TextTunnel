@@ -88,8 +88,7 @@ func (m roomModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEsc:
 			return m, navigateToPage(roomListView)
 		case tea.KeyEnter:
-			// TODO: change this to write to the socket instead
-			m.messages = append(m.messages, m.senderStyle.Render("You: ")+m.textarea.Value())
+			// m.messages = append(m.messages, m.senderStyle.Render("You: ")+m.textarea.Value())
 			m.viewport.SetContent(strings.Join(m.messages, "\n"))
 			cmd = write(m.conn, m.ctx, m.user.ID, m.id, m.textarea.Value())
 			m.textarea.Reset()
