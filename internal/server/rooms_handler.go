@@ -36,6 +36,8 @@ func (c *Config) CreateRoom(w http.ResponseWriter, r *http.Request, user databas
 		return
 	}
 
+	c.Hub.CreateRoom(room)
+
 	RespondWithJson(w, 201, models.DatabaseRoomToRoom(room))
 }
 
