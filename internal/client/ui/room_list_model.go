@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"log"
 	"time"
 
 	"github.com/Abi-Liu/TextTunnel/internal/client/http"
@@ -98,6 +97,26 @@ func (m roomListModel) Init() tea.Cmd {
 			list[i] = httpRoomToRoom(r)
 		}
 		return populateListMsg{list: list}
+	}
+}
+
+// TODO: handle these messages inside the main model update function
+type roomCreationErrorMsg struct {
+	err error
+}
+
+type roomCreatedMsg struct {
+	room room
+}
+
+func (m roomListModel) createRoom(name string) tea.Cmd {
+
+	return func() tea.Msg {
+		room, err := httpClient.CreateRoom(name)
+		if err != nil {
+			return roomCreationErrorMsg{err: err}
+		}
+		return roomCreatedMsg{room: httpRoomToRoom(room)}
 	}
 }
 
