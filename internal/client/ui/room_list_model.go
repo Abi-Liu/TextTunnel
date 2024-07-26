@@ -6,6 +6,7 @@ import (
 	"github.com/Abi-Liu/TextTunnel/internal/client/http"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/google/uuid"
 )
 
@@ -47,6 +48,7 @@ type populateListMsg struct {
 
 func newRoomListModel() *roomListModel {
 	list := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	list.SetShowHelp(false)
 	return &roomListModel{
 		list: list,
 	}
@@ -54,7 +56,8 @@ func newRoomListModel() *roomListModel {
 
 // fetch the rooms and populate the list
 func (m *roomListModel) initList(width, height int) {
-	m.list = list.New([]list.Item{}, list.NewDefaultDelegate(), width, height)
+	m.list = list.New([]list.Item{}, list.NewDefaultDelegate(), width, height-3)
+	m.list.SetShowHelp(false)
 }
 
 func navigateToRoom(id uuid.UUID, name string) tea.Cmd {
@@ -111,6 +114,8 @@ func (m roomListModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				m.focusIndex++
 				m.list.Select(m.focusIndex)
 			}
+		case "c":
+
 		default:
 			m.list, cmd = m.list.Update(msg)
 		}
@@ -122,5 +127,6 @@ func (m roomListModel) View() string {
 	if m.err != nil {
 		return m.err.Error()
 	}
-	return m.list.View()
+	helpView := helpStyle.Render("\n c: create room • enter: join room • /: filter • ctrl+c: quit\n")
+	return lipgloss.JoinVertical(lipgloss.Left, m.list.View(), helpView)
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/Abi-Liu/TextTunnel/internal/client/auth"
 	"github.com/Abi-Liu/TextTunnel/internal/client/http"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type sessionState int
@@ -16,6 +17,13 @@ const (
 	signUpView
 	roomListView
 	roomView
+)
+
+var (
+	helpStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{
+		Light: "#909090",
+		Dark:  "#626262",
+	})
 )
 
 type MainModel struct {

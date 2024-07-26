@@ -121,7 +121,7 @@ func (m roomModel) View() string {
 		m.viewport.View(),
 		m.textarea.View(),
 	) + "\n\n"
-
-	formatted := lipgloss.JoinVertical(lipgloss.Left, content, "\n esc: back • enter: send • ctrl+c: quit\n")
+	helpView := helpStyle.Render("\n esc: back • enter: send • ctrl+c: quit\n")
+	formatted := lipgloss.JoinVertical(lipgloss.Left, content, helpView)
 	return formatted
 }

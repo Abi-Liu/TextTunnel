@@ -67,5 +67,6 @@ func (m UnauthorizedModel) View() string {
 	}
 	s := "Welcome to TextTunnel\n\n"
 	s += fmt.Sprintf("   %s   %s   ", *login, *signup)
-	return lipgloss.JoinVertical(lipgloss.Left, s, "\n enter: select • ctrl+c: quit\n")
+	helpView := helpStyle.Render("\n enter: select • ctrl+c: quit\n")
+	return lipgloss.JoinVertical(lipgloss.Left, s, helpView)
 }

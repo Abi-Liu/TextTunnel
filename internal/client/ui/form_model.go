@@ -19,7 +19,6 @@ var (
 	blurredStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 	cursorStyle         = focusedStyle
 	noStyle             = lipgloss.NewStyle()
-	helpStyle           = blurredStyle
 	cursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
 )
 
@@ -171,7 +170,7 @@ func (m *FormModel) updateInputs(msg tea.Msg) tea.Cmd {
 
 func (m FormModel) View() string {
 	var b strings.Builder
-	helpView := "\n ↑/shift+tab: navigate up • ↓/tab: navigate down • esc: back • enter: submit • ctrl+c: quit\n"
+	helpView := helpStyle.Render("\n ↑/shift+tab: navigate up • ↓/tab: navigate down • esc: back • enter: submit • ctrl+c: quit\n")
 	for i := range m.inputs {
 		b.WriteString(m.inputs[i].View())
 		if i < len(m.inputs)-1 {
