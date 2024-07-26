@@ -18,7 +18,7 @@ The primary goal of Terminal Chat is to create a seamless and responsive real-ti
 
 ### Prerequisites
 * Go 1.22.4+ installed
-  * If you do not yet have a working Go environment of at least V1.22.3, you can install it [here](https://go.dev/doc/install)
+  * If you do not yet have a working Go environment of at least V1.22.4, you can install it [here](https://go.dev/doc/install)
 
 ### Installation
 `go install github.com/Abi-Liu/TextTunnel/cmd/chat_client@latest`
