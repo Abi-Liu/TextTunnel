@@ -31,5 +31,5 @@ The primary goal of Terminal Chat is to create a seamless and responsive real-ti
     * At the end of your postgres connection string, make sure to include this snippet: `?sslmode=disable`
 * Migrate your database by running `./scripts/migrateup.sh`
 * At the root of the project and generate the SQL code using `sqlc generate`
-* Now you can run `make run-both`
+* You can now run `make run-both`. Alternatively, you can also run `make run-server` and `make run-client` in separate terminal windows to achieve the same effect.
 * And there you go. You have your own local version up and running!
