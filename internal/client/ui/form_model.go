@@ -1,13 +1,9 @@
 package ui
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
 	"strings"
 
-	"github.com/Abi-Liu/TextTunnel/internal/client/http"
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -99,14 +95,14 @@ func (m FormModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				var cmd tea.Cmd
 				if m.state == signUpView {
-					user, err := signUp(m.inputs[0].Value(), m.inputs[1].Value())
+					user, err := httpClient.PostSignUp(m.inputs[0].Value(), m.inputs[1].Value())
 					if err != nil {
 						m.error = err.Error()
 						return m, nil
 					}
 					cmd = authorizationCmd(user)
 				} else {
-					user, err := login(m.inputs[0].Value(), m.inputs[1].Value())
+					user, err := httpClient.Login(m.inputs[0].Value(), m.inputs[1].Value())
 					if err != nil {
 						m.error = err.Error()
 						return m, nil
@@ -203,94 +199,4 @@ func validateInputs(inputs []textinput.Model) bool {
 
 func validatePassword(inputs []textinput.Model) bool {
 	return inputs[1].Value() == inputs[2].Value() && len(inputs[1].Value()) > 0
-}
-
-func signUp(username, password string) (http.User, error) {
-	type Req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-
-	req := Req{
-		Username: username,
-		Password: password,
-	}
-
-	data, err := json.Marshal(req)
-	if err != nil {
-		return http.User{}, err
-	}
-
-	reqBody := bytes.NewReader(data)
-	res, err := httpClient.Post(http.BASE_URL+"/users", reqBody)
-	if err != nil {
-		return http.User{}, err
-	}
-	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body)
-
-	var user http.User
-	var error http.Error
-
-	if res.StatusCode >= 400 {
-		err = json.Unmarshal(body, &error)
-		if err != nil {
-			return http.User{}, err
-		}
-		return http.User{}, fmt.Errorf(error.Error)
-	}
-
-	err = json.Unmarshal(body, &user)
-	if err != nil {
-		return http.User{}, err
-	}
-	return user, nil
-}
-
-func login(username, password string) (http.User, error) {
-	type Req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-	fmt.Println(username, password)
-
-	req := Req{
-		Username: username,
-		Password: password,
-	}
-
-	data, err := json.Marshal(req)
-	if err != nil {
-		return http.User{}, err
-	}
-
-	reqBody := bytes.NewReader(data)
-	res, err := httpClient.Post(http.BASE_URL+"/login", reqBody)
-	if err != nil {
-		return http.User{}, err
-	}
-	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body)
-
-	var user http.User
-	var error http.Error
-	if res.StatusCode >= 400 {
-		err = json.Unmarshal(body, &error)
-		if err != nil {
-			return http.User{}, err
-		}
-		return http.User{}, fmt.Errorf(error.Error)
-	}
-
-	err = json.Unmarshal(body, &user)
-	if err != nil {
-		return http.User{}, err
-	}
-	return user, nil
-}
-
-func authorizationCmd(user http.User) tea.Cmd {
-	return func() tea.Msg {
-		return authorizationMsg{user: user}
-	}
 }

@@ -40,19 +40,9 @@ type MainModel struct {
 	RoomModel         tea.Model
 }
 
-type navigateToPageMsg struct {
-	state sessionState
-}
-
-type authorizationMsg struct {
-	user http.User
-}
-
 type validAuthTokenOnStartMsg struct {
 	user http.User
 }
-
-type navigateToRoomsListMsg struct{}
 
 var httpClient *http.HttpClient
 

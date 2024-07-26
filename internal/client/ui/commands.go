@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/Abi-Liu/TextTunnel/internal/client/http"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/uuid"
 	"nhooyr.io/websocket"
@@ -68,5 +69,56 @@ func write(conn *websocket.Conn, ctx context.Context, userId, roomId uuid.UUID, 
 		}
 
 		return nil
+	}
+}
+
+type navigateToPageMsg struct {
+	state sessionState
+}
+
+func navigateToPage(state sessionState) tea.Cmd {
+	return func() tea.Msg {
+		return navigateToPageMsg{state: state}
+	}
+}
+
+type authorizationMsg struct {
+	user http.User
+}
+
+func authorizationCmd(user http.User) tea.Cmd {
+	return func() tea.Msg {
+		return authorizationMsg{user: user}
+	}
+}
+
+type navigateToRoomsListMsg struct{}
+
+func navigateToRoom(id uuid.UUID, name string) tea.Cmd {
+	return func() tea.Msg {
+		return navigateToRoomMsg{
+			id:   id,
+			name: name,
+		}
+	}
+}
+
+// TODO: handle these messages inside the main model update function
+type roomCreationErrorMsg struct {
+	err error
+}
+
+type roomCreatedMsg struct {
+	room room
+}
+
+func (m roomListModel) createRoom(name string) tea.Cmd {
+
+	return func() tea.Msg {
+		room, err := httpClient.CreateRoom(name)
+		if err != nil {
+			return roomCreationErrorMsg{err: err}
+		}
+		return roomCreatedMsg{room: httpRoomToRoom(room)}
 	}
 }

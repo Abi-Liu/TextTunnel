@@ -12,7 +12,7 @@ import (
 	"nhooyr.io/websocket"
 )
 
-func (c HttpClient) ConnectToSocket(id uuid.UUID) (*websocket.Conn, context.Context, context.CancelFunc, error) {
+func (c *HttpClient) ConnectToSocket(id uuid.UUID) (*websocket.Conn, context.Context, context.CancelFunc, error) {
 	header := http.Header{}
 	header.Set("Authorization", "Bearer "+c.AuthToken)
 	dialOpts := websocket.DialOptions{HTTPHeader: header}
@@ -26,7 +26,7 @@ func (c HttpClient) ConnectToSocket(id uuid.UUID) (*websocket.Conn, context.Cont
 	return conn, ctx, cancel, nil
 }
 
-func (c HttpClient) FetchRooms() ([]Room, error) {
+func (c *HttpClient) FetchRooms() ([]Room, error) {
 	res, err := c.Get(BASE_URL + "/rooms")
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (c HttpClient) FetchRooms() ([]Room, error) {
 	return rooms, nil
 }
 
-func (c HttpClient) CreateRoom(name string) (Room, error) {
+func (c *HttpClient) CreateRoom(name string) (Room, error) {
 	type Req struct {
 		Name string `json:"name"`
 	}

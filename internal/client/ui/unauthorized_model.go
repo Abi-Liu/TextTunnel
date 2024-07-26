@@ -7,12 +7,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func navigateToPage(state sessionState) tea.Cmd {
-	return func() tea.Msg {
-		return navigateToPageMsg{state: state}
-	}
-}
-
 type UnauthorizedModel struct {
 	focusIndex int
 }
