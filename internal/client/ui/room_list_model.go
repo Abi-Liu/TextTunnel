@@ -133,18 +133,25 @@ func (m roomListModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 			if !m.showInput {
 				m.showInput = true
 				cmd = m.input.Init()
+				model := m.input.(inputModel)
+				model.input.Focus()
+				m.input = model
 			} else {
 				m.input, cmd = m.input.Update(msg)
 			}
 		case "esc":
-			m.showInput = false
-			model := m.input.(inputModel)
-			model.input.Blur()
-			model.input.Reset()
-			m.input = model
+			if m.showInput {
+				m.showInput = false
+				model := m.input.(inputModel)
+				model.input.Blur()
+				model.input.Reset()
+				m.input = model
+			}
 		default:
 			if m.showInput {
 				m.input, cmd = m.input.Update(msg)
+			} else {
+				m.list, cmd = m.list.Update(msg)
 			}
 		}
 	}

@@ -16,7 +16,6 @@ func newInputModel() tea.Model {
 	m.input.Cursor.Style = cursorStyle
 	m.input.CharLimit = 24
 	m.input.Placeholder = "Enter room name"
-	m.input.Focus()
 	m.input.PromptStyle = focusedStyle
 	m.input.TextStyle = focusedStyle
 	return m

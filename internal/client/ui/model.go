@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Abi-Liu/TextTunnel/internal/client/auth"
@@ -118,6 +119,9 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		model.name = msg.name
 		model.id = msg.id
 		model.user = m.User
+		model.messages = []string{}
+		model.textarea.Reset()
+		model.viewport.SetContent(fmt.Sprintf("Welcome to %s!\nType a message and hit enter to send", msg.name))
 		m.RoomModel = model
 		m.State = roomView
 		cmd = m.RoomModel.Init()
@@ -150,7 +154,7 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		model := m.RoomListModel.(roomListModel)
 		items := model.list.Items()
 		items = append(items, msg.room)
-		cmd = model.list.SetItems(items)
+		model.list.SetItems(items)
 		m.RoomListModel = model
 	case tea.KeyMsg:
 		switch msg.String() {
