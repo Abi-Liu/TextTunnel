@@ -84,7 +84,6 @@ func (m MainModel) Init() tea.Cmd {
 		if err != nil {
 			panic("Corrupted auth token!")
 		}
-
 		cmd = func() tea.Msg {
 			return validAuthTokenOnStartMsg{
 				user: user,
@@ -109,18 +108,12 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case validAuthTokenOnStartMsg:
 		m.State = roomListView
 		m.User = msg.user
-		room := m.RoomModel.(roomModel)
-		room.user = msg.user
-		m.RoomModel = room
 		cmd = m.RoomListModel.Init()
 	case authorizationMsg:
 		m.User = msg.user
 		// save the authorization token
 		m.Cm.SaveToken(msg.user.ApiKey)
 		httpClient.SetAuthToken(msg.user.ApiKey)
-		room := m.RoomModel.(roomModel)
-		room.user = msg.user
-		m.RoomModel = room
 
 		// switch the state to the room list view
 		m.State = roomListView
@@ -134,6 +127,7 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		model := m.RoomModel.(roomModel)
 		model.name = msg.name
 		model.id = msg.id
+		model.user = m.User
 		m.RoomModel = model
 		m.State = roomView
 		cmd = m.RoomModel.Init()

@@ -52,7 +52,7 @@ func newRoomModel(width, height int) roomModel {
 	ta.ShowLineNumbers = false
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 
-	vp := viewport.New(width, height-8)
+	vp := viewport.New(width, height-12)
 	vp.SetContent("Welcome to the chat room!\nType a message and hit enter to send")
 
 	return roomModel{
