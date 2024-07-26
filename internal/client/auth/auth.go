@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -33,7 +32,7 @@ func (*OSFileSystem) WriteFile(filePath string, data []byte, perm fs.FileMode) e
 }
 
 func (*OSFileSystem) ReadFile(filePath string) ([]byte, error) {
-	return os.ReadFile(filePath)
+	return os.ReadFile(filepath.Clean(filePath))
 }
 
 type ConfigManager struct {
@@ -43,13 +42,11 @@ type ConfigManager struct {
 func (c *ConfigManager) SaveToken(token string) error {
 	homeDir, err := c.FS.UserHomeDir()
 	if err != nil {
-		log.Print(err)
 		return err
 	}
 
 	filePath := filepath.Join(homeDir, ".texttunnel", "config.json")
 	if err := c.FS.MkDirAll(filepath.Dir(filePath), 0755); err != nil {
-		log.Print(err)
 		return err
 	}
 
@@ -59,13 +56,11 @@ func (c *ConfigManager) SaveToken(token string) error {
 
 	data, err := json.Marshal(configMap)
 	if err != nil {
-		log.Print(err)
 		return err
 	}
 
 	err = c.FS.WriteFile(filePath, data, 0600)
 	if err != nil {
-		log.Print(err)
 		return err
 	}
 
@@ -82,21 +77,18 @@ func (c *ConfigManager) LoadToken() (string, error) {
 
 	data, err := c.FS.ReadFile(filePath)
 	if err != nil {
-		log.Print(err)
 		return "", err
 	}
 
 	configMap := make(map[string]string)
 	err = json.Unmarshal(data, &configMap)
 	if err != nil {
-		log.Print(err)
 		return "", err
 	}
 
 	token, ok := configMap[TOKEN_KEY]
 	if !ok {
-		log.Print("No token, Please login")
-		return "", errors.New("No token found. Please login")
+		return "", errors.New("no token found. Please login")
 	}
 
 	return token, nil

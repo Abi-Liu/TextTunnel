@@ -92,8 +92,6 @@ func authorizationCmd(user http.User) tea.Cmd {
 	}
 }
 
-type navigateToRoomsListMsg struct{}
-
 func navigateToRoom(id uuid.UUID, name string) tea.Cmd {
 	return func() tea.Msg {
 		return navigateToRoomMsg{

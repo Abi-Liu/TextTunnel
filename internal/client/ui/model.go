@@ -103,7 +103,10 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	case authorizationMsg:
 		m.User = msg.user
 		// save the authorization token
-		m.Cm.SaveToken(msg.user.ApiKey)
+		err := m.Cm.SaveToken(msg.user.ApiKey)
+		if err != nil {
+			panic("Failed to save auth token")
+		}
 		httpClient.SetAuthToken(msg.user.ApiKey)
 
 		// switch the state to the room list view
