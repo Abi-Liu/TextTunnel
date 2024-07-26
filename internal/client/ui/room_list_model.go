@@ -105,22 +105,43 @@ func (m roomListModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				// create a new room command
 				model := m.input.(inputModel)
 				cmd = m.createRoom(model.input.Value())
+				model.input.Blur()
+				model.input.Reset()
+				m.input = model
+				m.showInput = false
 			}
 		case "up", "k":
-			if m.focusIndex > 0 {
-				m.focusIndex--
-				m.list.Select(m.focusIndex)
+			if !m.showInput {
+				if m.focusIndex > 0 {
+					m.focusIndex--
+					m.list.Select(m.focusIndex)
+				}
+			} else {
+				m.input, cmd = m.input.Update(msg)
 			}
+
 		case "down", "j":
-			if m.focusIndex < len(m.list.Items())-1 {
-				m.focusIndex++
-				m.list.Select(m.focusIndex)
+			if !m.showInput {
+				if m.focusIndex < len(m.list.Items())-1 {
+					m.focusIndex++
+					m.list.Select(m.focusIndex)
+				}
+			} else {
+				m.input, cmd = m.input.Update(msg)
 			}
 		case "c":
-			m.showInput = true
-			cmd = m.input.Init()
+			if !m.showInput {
+				m.showInput = true
+				cmd = m.input.Init()
+			} else {
+				m.input, cmd = m.input.Update(msg)
+			}
 		case "esc":
 			m.showInput = false
+			model := m.input.(inputModel)
+			model.input.Blur()
+			model.input.Reset()
+			m.input = model
 		default:
 			if m.showInput {
 				m.input, cmd = m.input.Update(msg)
@@ -134,7 +155,7 @@ func (m roomListModel) View() string {
 	if m.err != nil {
 		return m.err.Error()
 	}
-	helpView := helpStyle.Render("\n c: create room • enter: join room • /: filter • ctrl+c: quit\n")
+	helpView := helpStyle.Render("\n ↑/k: up • ↓/j: down • c: create room • enter: join room • /: filter • ctrl+c: quit\n")
 	s := lipgloss.JoinVertical(lipgloss.Left, m.list.View(), helpView)
 	if m.showInput {
 		s = lipgloss.JoinVertical(lipgloss.Left, s, m.input.View())
