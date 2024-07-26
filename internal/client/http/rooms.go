@@ -2,10 +2,29 @@ package http
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
+
+	"github.com/google/uuid"
+	"nhooyr.io/websocket"
 )
+
+func (c HttpClient) ConnectToSocket(id uuid.UUID) (*websocket.Conn, context.Context, context.CancelFunc, error) {
+	header := http.Header{}
+	header.Set("Authorization", "Bearer "+c.AuthToken)
+	dialOpts := websocket.DialOptions{HTTPHeader: header}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	conn, _, err := websocket.Dial(ctx, BASE_URL+"/ws/"+id.String(), &dialOpts)
+	if err != nil {
+		cancel()
+		return nil, nil, nil, err
+	}
+	return conn, ctx, cancel, nil
+}
 
 func (c HttpClient) FetchRooms() ([]Room, error) {
 	res, err := c.Get(BASE_URL + "/rooms")

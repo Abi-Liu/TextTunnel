@@ -3,7 +3,6 @@ package ui
 import (
 	"context"
 	"log"
-	"net/http"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/uuid"
@@ -23,17 +22,10 @@ type connectionErrorMsg struct {
 
 func connectToRoom(id uuid.UUID) tea.Cmd {
 	return func() tea.Msg {
-		header := http.Header{}
-		header.Set("Authorization", "Bearer "+httpClient.AuthToken)
-		dialOpts := websocket.DialOptions{HTTPHeader: header}
-
-		ctx, cancel := context.WithCancel(context.Background())
-		c, _, err := websocket.Dial(ctx, "ws://localhost:8080/ws/"+id.String(), &dialOpts)
+		c, ctx, cancel, err := httpClient.ConnectToSocket(id)
 		if err != nil {
-			cancel()
 			return connectionErrorMsg{err: err}
 		}
-
 		return wsConnectionMsg{conn: c, ctx: ctx, cancel: cancel}
 	}
 }
