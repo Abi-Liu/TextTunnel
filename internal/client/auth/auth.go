@@ -88,7 +88,7 @@ func (c *ConfigManager) LoadToken() (string, error) {
 
 	token, ok := configMap[TOKEN_KEY]
 	if !ok {
-		return "", errors.New("No token found. Please login")
+		return "", errors.New("no token found. Please login")
 	}
 
 	return token, nil

@@ -51,6 +51,9 @@ func (c *HttpClient) PostSignUp(username, password string) (User, error) {
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return User{}, err
+	}
 
 	var user User
 	var error Error
@@ -83,6 +86,7 @@ func (c *HttpClient) Login(username, password string) (User, error) {
 
 	data, err := json.Marshal(req)
 	if err != nil {
+		return User{}, err
 	}
 
 	reqBody := bytes.NewReader(data)
@@ -92,6 +96,9 @@ func (c *HttpClient) Login(username, password string) (User, error) {
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return User{}, err
+	}
 
 	var user User
 	var error Error

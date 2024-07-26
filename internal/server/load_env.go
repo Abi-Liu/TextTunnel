@@ -20,12 +20,12 @@ func LoadEnv() (*Env, error) {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		return nil, errors.New("Port env missing")
+		return nil, errors.New("port env missing")
 	}
 
 	db := os.Getenv("DATABASE_URL")
 	if db == "" {
-		return nil, errors.New("DB string missing")
+		return nil, errors.New("db string missing")
 	}
 
 	return &Env{

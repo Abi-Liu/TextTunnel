@@ -21,18 +21,14 @@ func HashPassword(password string) (string, error) {
 func CompareHashAndPassword(hashedPassword, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }
 
 func GetAuthorizationKey(r *http.Request) (string, error) {
 	authHeader := r.Header.Get("Authorization")
 	arr := strings.Split(authHeader, "Bearer ")
 	if len(arr) < 2 {
-		return "", errors.New("Invalid authorization key")
+		return "", errors.New("invalid authorization key")
 	}
 	return arr[1], nil
 }

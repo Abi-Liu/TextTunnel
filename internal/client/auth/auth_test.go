@@ -62,7 +62,7 @@ func TestSaveToken(t *testing.T) {
 		t.Fatalf("Failed to unmarshal json")
 	}
 
-	token, _ := file[TOKEN_KEY]
+	token := file[TOKEN_KEY]
 
 	if token != "Test" {
 		t.Fatalf("Expected Test, Received: %s", string(data))
@@ -72,7 +72,7 @@ func TestSaveToken(t *testing.T) {
 func TestLoadToken(t *testing.T) {
 	fs := NewMockFileSystem()
 	cm := ConfigManager{FS: fs}
-	token, err := cm.LoadToken()
+	_, err := cm.LoadToken()
 	if err == nil {
 		t.Fatalf("Expected error, received nil")
 	}
@@ -80,7 +80,7 @@ func TestLoadToken(t *testing.T) {
 	expectedPath := fmt.Sprintf("%s/.texttunnel/config.json", HOME_DIR)
 	fs.files[expectedPath] = []byte(`{"token": "Test"}`)
 
-	token, err = cm.LoadToken()
+	token, _ := cm.LoadToken()
 	if token != "Test" {
 		t.Fatalf("Expected Test, Received %s", token)
 	}
