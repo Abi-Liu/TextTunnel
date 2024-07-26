@@ -26,8 +26,7 @@ The primary goal of Terminal Chat is to create a seamless and responsive real-ti
 ### Running
 #### Locally
 * Clone the repo `git clone https://github.com/Abi-Liu/TextTunnel.git`
-* Replace the env variables inside of `.env.example` with your own values **NOTE: This project expects you to use Postgres as the database. Download [here](https://www.postgresql.org/download/)**
-    * To generate a secure `JWT_SECRET` you can run this on the command line `openssl rand -base64 64`
+* Replace the env variables inside of `.env.example` with your own values **NOTE:** This project expects you to use Postgres as the database. If you do not have it installed you can download [here](https://www.postgresql.org/download/)
     * At the end of your postgres connection string, make sure to include this snippet: `?sslmode=disable`
 * Migrate your database by running `./scripts/migrateup.sh`
 * At the root of the project and generate the SQL code using `sqlc generate`
