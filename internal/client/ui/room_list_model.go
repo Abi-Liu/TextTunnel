@@ -162,10 +162,11 @@ func (m roomListModel) View() string {
 	if m.err != nil {
 		return m.err.Error()
 	}
-	helpView := helpStyle.Render("\n ↑/k: up • ↓/j: down • c: create room • enter: join room • /: filter • ctrl+c: quit\n")
-	s := lipgloss.JoinVertical(lipgloss.Left, m.list.View(), helpView)
+	helpView := helpStyle.Render("\n ↑/k: up • ↓/j: down • c: create room • enter: join room • ctrl+c: quit\n")
 	if m.showInput {
-		s = lipgloss.JoinVertical(lipgloss.Left, s, m.input.View())
+		inputStyle := lipgloss.NewStyle().Margin(1)
+		helpView = lipgloss.JoinHorizontal(lipgloss.Center, helpView, inputStyle.Render(m.input.View()))
 	}
+	s := lipgloss.JoinVertical(lipgloss.Left, m.list.View(), helpView)
 	return s
 }
