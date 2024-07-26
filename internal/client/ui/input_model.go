@@ -3,10 +3,12 @@ package ui
 import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type inputModel struct {
 	input textinput.Model
+	err   error
 }
 
 func newInputModel() tea.Model {
@@ -35,5 +37,8 @@ func (m inputModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m inputModel) View() string {
+	if m.err != nil {
+		return lipgloss.JoinVertical(lipgloss.Left, "Could not create room", m.input.View())
+	}
 	return m.input.View()
 }

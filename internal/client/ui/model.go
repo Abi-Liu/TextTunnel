@@ -140,6 +140,18 @@ func (m MainModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		model.viewport.SetContent(strings.Join(model.messages, "\n"))
 		m.RoomModel = model
 		cmd = read(model.conn, model.ctx)
+	case roomCreationErrorMsg:
+		model := m.RoomListModel.(roomListModel)
+		input := model.input.(inputModel)
+		input.err = msg.err
+		model.input = input
+		m.RoomListModel = model
+	case roomCreatedMsg:
+		model := m.RoomListModel.(roomListModel)
+		items := model.list.Items()
+		items = append(items, msg.room)
+		cmd = model.list.SetItems(items)
+		m.RoomListModel = model
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":

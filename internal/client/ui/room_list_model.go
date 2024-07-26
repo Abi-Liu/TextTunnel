@@ -103,6 +103,8 @@ func (m roomListModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 				cmd = navigateToRoom(room.ID, room.Name)
 			} else {
 				// create a new room command
+				model := m.input.(inputModel)
+				cmd = m.createRoom(model.input.Value())
 			}
 		case "up", "k":
 			if m.focusIndex > 0 {
