@@ -51,7 +51,7 @@ func (q *Queries) DeleteUserById(ctx context.Context, id uuid.UUID) (int64, erro
 
 const findUserByApiKey = `-- name: FindUserByApiKey :one
 SELECT id, username, password, created_at, updated_at, api_key FROM users WHERE api_key = $1
-`
+` // #nosec G101
 
 func (q *Queries) FindUserByApiKey(ctx context.Context, apiKey string) (User, error) {
 	row := q.db.QueryRowContext(ctx, findUserByApiKey, apiKey)

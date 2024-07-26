@@ -29,7 +29,10 @@ func (r *Room) RunRoom() {
 			log.Printf("Client Joined: %v", client.Username)
 		case client := <-r.Leave:
 			delete(r.Clients, client.ID.String())
-			client.Conn.Close(websocket.StatusNormalClosure, "Normal Closure")
+			err := client.Conn.Close(websocket.StatusNormalClosure, "Normal Closure")
+			if err != nil {
+				return
+			}
 			log.Printf("Client left: %v", client.Username)
 		case msg := <-r.Broadcast:
 			for _, client := range r.Clients {
