@@ -18,7 +18,7 @@ func TestRespondWithJson(t *testing.T) {
 			expectedStatusCode: 200,
 			statusCode:         200,
 			payload:            map[string]string{"message": "Hello World"},
-			expectedBody:       `"message": "Hello World"`,
+			expectedBody:       `{"message":"Hello World"}`,
 		},
 		"empty payload": {
 			expectedStatusCode: 201,
