@@ -44,3 +44,35 @@ func TestRespondWithJson(t *testing.T) {
 		assert.Equal(t, test.expectedBody, rr.Body.String())
 	}
 }
+
+func TestRespondWithError(t *testing.T) {
+	tests := map[string]struct {
+		statusCode         int
+		expectedStatusCode int
+		msg                string
+		expectedBody       string
+	}{
+		"internal error": {
+			statusCode:         500,
+			expectedStatusCode: 500,
+			msg:                "Oops something went wrong!",
+			expectedBody:       `{"error":"Oops something went wrong!"}`,
+		},
+		"user error": {
+			statusCode:         400,
+			expectedStatusCode: 400,
+			msg:                "bad request!!!",
+			expectedBody:       `{"error":"bad request!!!"}`,
+		},
+	}
+
+	for name, test := range tests {
+		t.Logf("Running tests: %s", name)
+		rr := httptest.NewRecorder()
+		RespondWithError(rr, test.statusCode, test.msg)
+
+		assert.Equal(t, test.expectedStatusCode, rr.Code)
+		assert.Equal(t, "application/json", rr.Header().Get("Content-Type"))
+		assert.Equal(t, test.expectedBody, rr.Body.String())
+	}
+}
