@@ -2,7 +2,7 @@
 A real-time messaging application based entirely inside your terminal.
 
 ## Motivation
-As a developer primarily experienced in backend and web development, I've often found myself within the comfort zone of building graphical user interfaces and traditional server-side applications. Terminal Chat is a project aimed at pushing my boundaries by delving into the world of terminal user interfaces (TUIs). This project not only challenges me to implement real-time communication using WebSockets and Go's concurrency features but also helps me grow by exploring the intricacies of building effective and user-friendly TUIs. By stepping out of my comfort zone, I aim to gain a deeper understanding of low-level application design and enhance my skill set, ultimately becoming a more versatile and well-rounded developer.
+As a developer primarily experienced in backend and web development, I've often found myself within the comfort zone of building graphical user interfaces and traditional server-side applications. Terminal Chat is a project aimed at pushing my boundaries by delving into the world of terminal user interfaces (TUIs). This project not only challenges me to implement real-time communication using WebSockets and Go's concurrency features but also helps me grow by exploring the intricacies of building effective and user-friendly TUIs.
 
 ## Goals
 The primary goal of Terminal Chat is to create a seamless and responsive real-time chat application that runs entirely in the terminal. Key objectives include:
@@ -17,7 +17,7 @@ The primary goal of Terminal Chat is to create a seamless and responsive real-ti
 ## Getting Started
 
 ### Prerequisites
-* Go 1.22.4+ installed
+* Go 1.22+ installed
   * If you do not yet have a working Go environment of at least V1.22.4, you can install it [here](https://go.dev/doc/install)
 
 ### Installation
