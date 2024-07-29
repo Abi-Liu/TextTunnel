@@ -4,7 +4,7 @@ CLIENT_BINARY := chat_client
 
 # Directories
 SERVER_DIR := ./cmd/chat_server/
-CLIENT_DIR := ./cmd/chat_client/
+CLIENT_DIR := ./cmd/chat_client/texttunnel/
 
 build-server:
 	@echo "Building server..."
