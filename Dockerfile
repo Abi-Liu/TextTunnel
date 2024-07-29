@@ -1,3 +1,4 @@
 FROM debian:stable-slim
-COPY linux_binary bin/server
-CMD ["bin/server"]
+COPY linux_binary /bin/server
+COPY .env ./
+CMD ["/bin/server"]
