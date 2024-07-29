@@ -10,6 +10,10 @@ build-server:
 	@echo "Building server..."
 	@cd $(SERVER_DIR) && go build -o $(SERVER_BINARY)
 
+build-linux:
+	@echo "Building server for Linux..."
+	@cd $(CLIENT_DIR) && GOOS=linux GOARCH=amd64 go build -o '../../../linux_binary'
+
 build-client:
 	@echo "Building client..."
 	@cd $(CLIENT_DIR) && go build -o $(CLIENT_BINARY)

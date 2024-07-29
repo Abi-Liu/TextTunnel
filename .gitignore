@@ -24,3 +24,4 @@ go.work.sum
 
 cmd/chat_server/chat_server
 cmd/chat_client/chat_client
+linux_binary
