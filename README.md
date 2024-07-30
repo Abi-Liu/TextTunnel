@@ -2,8 +2,8 @@
 A real-time messaging application based entirely inside your terminal.
 
 <p align="center">
-  <img src="assets/room-view.png" alt="Chat room image" width="500" style="display: inline-block; margin-right: 10px;">
-  <img src="assets/room-list.png" alt="Room list image" width="500" style="display: inline-block;">
+  <img src="assets/room-view.png" alt="Chat room image" width="470" style="display: inline-block; margin-right: 10px;">
+  <img src="assets/room-list.png" alt="Room list image" width="470" style="display: inline-block;">
 </p>
 
 ## Motivation
