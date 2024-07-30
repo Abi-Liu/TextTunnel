@@ -18,17 +18,19 @@ The primary goal of Terminal Chat is to create a seamless and responsive real-ti
 
 ### Prerequisites
 * Go 1.22+ installed
-  * If you do not yet have a working Go environment of at least V1.22.4, you can install it [here](https://go.dev/doc/install)
+  * If you do not yet have a working Go environment of at least v1.22, you can install it [here](https://go.dev/doc/install)
 
 ### Installation
-`go install github.com/Abi-Liu/TextTunnel/cmd/chat_client@latest`
+`go install github.com/Abi-Liu/TextTunnel/cmd/chat_client/texttunnel@latest`
 
 ### Running
+#### Production
+After installing the application, navigate to your favorite terminal and run `texttunnel`. The TUI application will launch and you will automatically connect to the hosted server. Simply create an account and you can immediately begin chatting!
+
 #### Locally
 * Clone the repo `git clone https://github.com/Abi-Liu/TextTunnel.git`
 * Replace the env variables inside of `.env.example` with your own values **NOTE:** This project expects you to use Postgres as the database. If you do not have it installed you can download [here](https://www.postgresql.org/download/)
-    * At the end of your postgres connection string, make sure to include this snippet: `?sslmode=disable`
+    * At the end of your Postgres connection string, make sure to include this snippet: `?sslmode=disable`
 * Migrate your database by running `./scripts/migrateup.sh`
-* At the root of the project and generate the SQL code using `sqlc generate`
 * You can now run `make run-both`. Alternatively, you can also run `make run-server` and `make run-client` in separate terminal windows to achieve the same effect.
 * And there you go. You have your own local version up and running!
