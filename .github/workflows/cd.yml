@@ -36,11 +36,12 @@ jobs:
       - name: Build and push docker image
         run: gcloud builds submit --tag us-central1-docker.pkg.dev/texttunnel-430922/texttunnel-ar-repo/texttunnel:latest .
 
-      - name: Install goose
-        run: go install github.com/pressly/goose/v3/cmd/goose@latest
+      # database is complaining about the migrations after we've already run them...
+      # - name: Install goose
+      #   run: go install github.com/pressly/goose/v3/cmd/goose@latest
 
-      - name: Run migrations
-        run: ./scripts/migrateup.sh
+      # - name: Run migrations
+      #   run: ./scripts/migrateup.sh
 
       - name: Deploy to Cloud Run
         run: gcloud run deploy texttunnel --image us-central1-docker.pkg.dev/texttunnel-430922/texttunnel-ar-repo/texttunnel:latest --region us-central1 --allow-unauthenticated --project texttunnel-430922 --max-instances=4
