@@ -13,11 +13,7 @@ type Env struct {
 }
 
 func LoadEnv() (*Env, error) {
-	err := godotenv.Load()
-	if err != nil {
-		return nil, err
-	}
-
+	godotenv.Load()
 	port := os.Getenv("PORT")
 	if port == "" {
 		return nil, errors.New("port env missing")
@@ -32,4 +28,5 @@ func LoadEnv() (*Env, error) {
 		PORT:   port,
 		DB_URL: db,
 	}, nil
+
 }
