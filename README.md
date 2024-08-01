@@ -1,10 +1,7 @@
 # TextTunnel
 A real-time messaging application based entirely inside your terminal.
 
-<p align="center">
-  <img src="assets/room-view.png" alt="Chat room image" width="425" style="display: inline-block; margin-right: 10px;">
-  <img src="assets/room-list.png" alt="Room list image" width="425" style="display: inline-block;">
-</p>
+![Demo gif](assets/texttunnel.gif)
 
 ## Motivation
 As a developer primarily experienced in backend and web development, I've often found myself within the comfort zone of building graphical user interfaces and traditional server-side applications. Terminal Chat is a project aimed at pushing my boundaries by delving into the world of terminal user interfaces (TUIs). This project not only challenges me to implement real-time communication using WebSockets and Go's concurrency features but also helps me grow by exploring the intricacies of building effective and user-friendly TUIs.
