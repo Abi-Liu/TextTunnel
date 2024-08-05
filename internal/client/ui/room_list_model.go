@@ -3,7 +3,7 @@ package ui
 import (
 	"time"
 
-	"github.com/Abi-Liu/TextTunnel/internal/client/http"
+	"github.com/Abi-Liu/TextTunnel/internal/models"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -65,7 +65,7 @@ func (m *roomListModel) initList(width, height int) {
 	m.list.SetShowHelp(false)
 }
 
-func httpRoomToRoom(r http.Room) room {
+func httpRoomToRoom(r models.Room) room {
 	return room{
 		ID:        r.ID,
 		Name:      r.Name,

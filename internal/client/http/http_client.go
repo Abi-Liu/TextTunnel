@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-const BASE_URL = "https://texttunnel-gyjkwvpeba-uc.a.run.app"
+// const BASE_URL = "https://texttunnel-gyjkwvpeba-uc.a.run.app"
+const BASE_URL = "http://localhost:8080"
 
 type HttpClient struct {
 	Client    *http.Client

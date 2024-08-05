@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Abi-Liu/TextTunnel/internal/database"
-	"github.com/Abi-Liu/TextTunnel/internal/server/models"
+	"github.com/Abi-Liu/TextTunnel/internal/models"
 	"github.com/google/uuid"
 )
 
