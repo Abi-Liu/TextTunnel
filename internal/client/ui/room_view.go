@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Abi-Liu/TextTunnel/internal/client/http"
+	"github.com/Abi-Liu/TextTunnel/internal/models"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,7 +32,7 @@ type roomModel struct {
 	receiveChan chan message
 	ctx         context.Context
 	cancel      context.CancelFunc
-	user        http.User
+	user        models.User
 	viewport    viewport.Model
 	messages    []string
 	textarea    textarea.Model

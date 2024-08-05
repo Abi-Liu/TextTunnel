@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/Abi-Liu/TextTunnel/internal/client/http"
+	"github.com/Abi-Liu/TextTunnel/internal/models"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/uuid"
 	"nhooyr.io/websocket"
@@ -83,10 +83,10 @@ func navigateToPage(state sessionState) tea.Cmd {
 }
 
 type authorizationMsg struct {
-	user http.User
+	user models.User
 }
 
-func authorizationCmd(user http.User) tea.Cmd {
+func authorizationCmd(user models.User) tea.Cmd {
 	return func() tea.Msg {
 		return authorizationMsg{user: user}
 	}

@@ -5,30 +5,32 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+
+	"github.com/Abi-Liu/TextTunnel/internal/models"
 )
 
-func (c *HttpClient) GetUserByAuthToken() (User, error) {
+func (c *HttpClient) GetUserByAuthToken() (models.User, error) {
 	res, err := c.Get(BASE_URL + "/users")
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 	defer res.Body.Close()
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 
-	user := User{}
+	user := models.User{}
 	err = json.Unmarshal(data, &user)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 
 	return user, nil
 }
 
-func (c *HttpClient) PostSignUp(username, password string) (User, error) {
+func (c *HttpClient) PostSignUp(username, password string) (models.User, error) {
 	type Req struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -41,39 +43,39 @@ func (c *HttpClient) PostSignUp(username, password string) (User, error) {
 
 	data, err := json.Marshal(req)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 
 	reqBody := bytes.NewReader(data)
 	res, err := c.Post(BASE_URL+"/users", reqBody)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 
-	var user User
-	var error Error
+	var user models.User
+	var error models.Error
 
 	if res.StatusCode >= 400 {
 		err = json.Unmarshal(body, &error)
 		if err != nil {
-			return User{}, err
+			return models.User{}, err
 		}
-		return User{}, fmt.Errorf(error.Error)
+		return models.User{}, fmt.Errorf(error.Error)
 	}
 
 	err = json.Unmarshal(body, &user)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 	return user, nil
 }
 
-func (c *HttpClient) Login(username, password string) (User, error) {
+func (c *HttpClient) Login(username, password string) (models.User, error) {
 	type Req struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -86,33 +88,33 @@ func (c *HttpClient) Login(username, password string) (User, error) {
 
 	data, err := json.Marshal(req)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 
 	reqBody := bytes.NewReader(data)
 	res, err := c.Post(BASE_URL+"/login", reqBody)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 
-	var user User
-	var error Error
+	var user models.User
+	var error models.Error
 	if res.StatusCode >= 400 {
 		err = json.Unmarshal(body, &error)
 		if err != nil {
-			return User{}, err
+			return models.User{}, err
 		}
-		return User{}, fmt.Errorf(error.Error)
+		return models.User{}, fmt.Errorf(error.Error)
 	}
 
 	err = json.Unmarshal(body, &user)
 	if err != nil {
-		return User{}, err
+		return models.User{}, err
 	}
 	return user, nil
 }

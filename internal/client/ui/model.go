@@ -6,6 +6,7 @@ import (
 
 	"github.com/Abi-Liu/TextTunnel/internal/client/auth"
 	"github.com/Abi-Liu/TextTunnel/internal/client/http"
+	"github.com/Abi-Liu/TextTunnel/internal/models"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -31,7 +32,7 @@ type MainModel struct {
 	State             sessionState
 	Cm                auth.ConfigManager
 	AuthToken         string
-	User              http.User
+	User              models.User
 	Width             int
 	Height            int
 	UnauthorizedModel tea.Model
@@ -42,7 +43,7 @@ type MainModel struct {
 }
 
 type validAuthTokenOnStartMsg struct {
-	user http.User
+	user models.User
 }
 
 var httpClient *http.HttpClient
