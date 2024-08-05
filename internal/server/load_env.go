@@ -13,7 +13,7 @@ type Env struct {
 }
 
 func LoadEnv() (*Env, error) {
-	godotenv.Load()
+	godotenv.Load() // #nosec G104
 	port := os.Getenv("PORT")
 	if port == "" {
 		return nil, errors.New("port env missing")
